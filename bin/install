@@ -1,0 +1,33 @@
+#! /usr/bin/env bash
+
+# Install all project dependencies.
+#
+# This script:
+#
+#   1. Upgrades pip.
+#   2. Installs package requirements.
+#   3. Installs development requirements.
+#   4. Installs the package.
+#
+
+set -e
+
+
+# Fetch the root directory.
+
+ROOT=$(git rev-parse --show-toplevel)
+
+
+# Setup the repository.
+
+# upgrade pip
+pip install --upgrade pip
+
+# install requirements
+pip install --requirement "$ROOT/requirements.txt"
+
+# install development requirements
+pip install --requirement "$ROOT/dev-requirements.txt"
+
+# install the package
+pip install --editable "$ROOT"

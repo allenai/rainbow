@@ -1,0 +1,27 @@
+#! /usr/bin/env bash
+
+# Format the code.
+#
+# This script runs "black", the python code formatter, on all the code.
+
+set -e
+
+
+# Fetch the root and package directories.
+
+ROOT=$(git rev-parse --show-toplevel)
+
+PACKAGES="$ROOT/src/rainbow $ROOT/tests"
+
+
+# Run the formatter.
+
+for PACKAGE in $PACKAGES
+do
+    echo "Formatting $PACKAGE"
+    black \
+        --line-length 80 \
+        --target-version py36 \
+        --safe \
+        $PACKAGE
+done

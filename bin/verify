@@ -1,0 +1,48 @@
+#! /usr/bin/env bash
+
+# Verify the code quality.
+#
+# This script:
+#
+#   1. Runs black to check the code formatting in all packages.
+#   2. Runs pylint to check for errors in the code in all packages.
+#   3. Runs tests with pytest.
+#
+# If any check fails, the script exits immediately with a non-zero
+# status.
+
+set -e
+
+
+# Fetch the root and package directories.
+
+ROOT=$(git rev-parse --show-toplevel)
+
+PACKAGES="$ROOT/src/rainbow $ROOT/tests"
+
+
+# Run code quality checks.
+
+for PACKAGE in $PACKAGES
+do
+    echo "Analyzing $PACKAGE."
+    # check the formatting
+    black \
+        --line-length 80 \
+        --target-version py36 \
+        --safe \
+        --check \
+        $PACKAGE
+    # run pylint
+    pylint --errors-only $PACKAGE
+done
+
+# Run tests.
+
+echo 'Running tests.'
+
+pytest
+
+# finished
+
+echo 'All checks passed!'
