@@ -9,9 +9,9 @@ from fairseq.data import (
     NestedDictionaryDataset,
     NumSamplesDataset,
     NumelDataset,
-    SortDataset,
     RawLabelDataset,
     RightPadDataset,
+    SortDataset,
 )
 from fairseq.tasks import register_task
 import numpy as np
