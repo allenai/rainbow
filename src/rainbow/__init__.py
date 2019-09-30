@@ -1,3 +1,3 @@
 """Neural models of common sense."""
 
-from . import settings
+from . import settings, tasks

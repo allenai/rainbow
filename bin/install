@@ -26,6 +26,13 @@ pip install --upgrade pip
 # install requirements
 pip install --requirement "$ROOT/requirements.txt"
 
+# install apex
+pip install \
+    --no-cache-dir \
+    --global-option="--cpp_ext" \
+    --global-option="--cuda_ext" \
+    git+git://github.com/nvidia/apex.git
+
 # install development requirements
 pip install --requirement "$ROOT/dev-requirements.txt"
 
