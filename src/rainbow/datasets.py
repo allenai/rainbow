@@ -49,7 +49,7 @@ class SocialIQADataset(Dataset):
                     TextFeature(text=feature["answerB"]),
                     TextFeature(text=feature["answerC"]),
                 ],
-                label=label,
+                label=int(label) - 1,
             )
             for feature, label in zip(features, labels)
         ]

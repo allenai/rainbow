@@ -19,4 +19,4 @@ class MultipleChoiceInstance(Instance):
 
     features: Dict[str, Feature]
     answers: List[Feature]
-    label: str
+    label: int
