@@ -19,7 +19,7 @@ class TextFeature(Feature):
 
 
 @attr.s(auto_attribs=True, frozen=True, kw_only=True)
-class CometAtomicFeature(Feature):
+class AtomicCometFeature(Feature):
     """A text feature augmented with COMeT's ATOMIC generations."""
 
     text: str
@@ -34,19 +34,19 @@ class CometAtomicFeature(Feature):
     x_react: str
     x_want: str
 
-    o_effect_embeddings: List[List[int]]
-    o_react_embeddings: List[List[int]]
-    o_want_embeddings: List[List[int]]
-    x_attr_embeddings: List[List[int]]
-    x_effect_embeddings: List[List[int]]
-    x_intent_embeddings: List[List[int]]
-    x_need_embeddings: List[List[int]]
-    x_react_embeddings: List[List[int]]
-    x_want_embeddings: List[List[int]]
+    o_effect_embeddings: List[int]
+    o_react_embeddings: List[int]
+    o_want_embeddings: List[int]
+    x_attr_embeddings: List[int]
+    x_effect_embeddings: List[int]
+    x_intent_embeddings: List[int]
+    x_need_embeddings: List[int]
+    x_react_embeddings: List[int]
+    x_want_embeddings: List[int]
 
 
 @attr.s(auto_attribs=True, frozen=True, kw_only=True)
-class CometConceptNetFeature(Feature):
+class ConceptNetCometFeature(Feature):
     """A text feature augmented with COMeT's ConceptNet generations."""
 
     text: str
@@ -86,37 +86,37 @@ class CometConceptNetFeature(Feature):
     symbol_of: str
     used_for: str
 
-    at_location_embeddings: List[List[int]]
-    capable_of_embeddings: List[List[int]]
-    causes_embeddings: List[List[int]]
-    causes_desire_embeddings: List[List[int]]
-    created_by_embeddings: List[List[int]]
-    defined_as_embeddings: List[List[int]]
-    desire_of_embeddings: List[List[int]]
-    desires_embeddings: List[List[int]]
-    has_a_embeddings: List[List[int]]
-    has_first_subevent_embeddings: List[List[int]]
-    has_last_subevent_embeddings: List[List[int]]
-    has_pain_character_embeddings: List[List[int]]
-    has_pain_intensity_embeddings: List[List[int]]
-    has_prerequisite_embeddings: List[List[int]]
-    has_property_embeddings: List[List[int]]
-    has_subevent_embeddings: List[List[int]]
-    inherits_from_embeddings: List[List[int]]
-    instance_of_embeddings: List[List[int]]
-    is_a_embeddings: List[List[int]]
-    located_near_embeddings: List[List[int]]
-    location_of_action_embeddings: List[List[int]]
-    made_of_embeddings: List[List[int]]
-    motivated_by_goal_embeddings: List[List[int]]
-    not_capable_of_embeddings: List[List[int]]
-    not_desires_embeddings: List[List[int]]
-    not_has_a_embeddings: List[List[int]]
-    not_has_property_embeddings: List[List[int]]
-    not_is_a_embeddings: List[List[int]]
-    not_made_of_embeddings: List[List[int]]
-    part_of_embeddings: List[List[int]]
-    receives_action_embeddings: List[List[int]]
-    related_to_embeddings: List[List[int]]
-    symbol_of_embeddings: List[List[int]]
-    used_for_embeddings: List[List[int]]
+    at_location_embeddings: List[int]
+    capable_of_embeddings: List[int]
+    causes_embeddings: List[int]
+    causes_desire_embeddings: List[int]
+    created_by_embeddings: List[int]
+    defined_as_embeddings: List[int]
+    desire_of_embeddings: List[int]
+    desires_embeddings: List[int]
+    has_a_embeddings: List[int]
+    has_first_subevent_embeddings: List[int]
+    has_last_subevent_embeddings: List[int]
+    has_pain_character_embeddings: List[int]
+    has_pain_intensity_embeddings: List[int]
+    has_prerequisite_embeddings: List[int]
+    has_property_embeddings: List[int]
+    has_subevent_embeddings: List[int]
+    inherits_from_embeddings: List[int]
+    instance_of_embeddings: List[int]
+    is_a_embeddings: List[int]
+    located_near_embeddings: List[int]
+    location_of_action_embeddings: List[int]
+    made_of_embeddings: List[int]
+    motivated_by_goal_embeddings: List[int]
+    not_capable_of_embeddings: List[int]
+    not_desires_embeddings: List[int]
+    not_has_a_embeddings: List[int]
+    not_has_property_embeddings: List[int]
+    not_is_a_embeddings: List[int]
+    not_made_of_embeddings: List[int]
+    part_of_embeddings: List[int]
+    receives_action_embeddings: List[int]
+    related_to_embeddings: List[int]
+    symbol_of_embeddings: List[int]
+    used_for_embeddings: List[int]
