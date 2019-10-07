@@ -29,5 +29,21 @@ pip install --requirement "$ROOT/requirements.txt"
 # install development requirements
 pip install --requirement "$ROOT/dev-requirements.txt"
 
+# install comet
+pip install \
+    tensorflow \
+    ftfy==5.1 \
+    spacy \
+    tensorboardX \
+    tqdm \
+    pandas \
+    ipython
+
+python -m spacy download en
+
+pip install \
+    --no-cache-dir \
+    git+ssh://git@github.com/allenai/comet.git@package#egg=comet
+
 # install the package
 pip install --editable "$ROOT"
