@@ -1,16 +1,16 @@
 """Datasets."""
 
 import json
+import os
+from typing import Any, Callable, List, Optional, Tuple
 from zipfile import ZipFile
 
+from sklearn import metrics
+from torch.utils.data import Dataset
+
+from . import settings
 from .features import TextFeature
 from .instances import MultipleChoiceInstance
-
-
-class Dataset:
-    """An abstract base class for datasets."""
-
-    pass
 
 
 class SocialIQADataset(Dataset):
@@ -27,8 +27,36 @@ class SocialIQADataset(Dataset):
         },
     }
 
+    _QUESTION_TEMPLATES = [
+        ("How would", "feel as a result?", ["x_react", "o_react"]),
+        ("What will happen to", "?", ["x_effect", "o_effect"]),
+        ("How would", "feel afterwards?", ["x_react", "o_react"]),
+        ("What does", "need to do before this?", ["x_intent", "x_need"]),
+        ("Why did", "do this?", ["x_intent", "x_need"]),
+        ("How would you describe", "?", ["x_attr", "x_effect"]),
+        ("What will", "want to do next?", ["x_want", "o_want"]),
+    ]
+
+    preprocessed_path_templates = {
+        "atomic": "{split}.atomic-socialiqa.jsonl",
+        "conceptnet": "{split}.conceptnet-socialiqa.jsonl",
+        "original": "{split}.original-socialiqa.jsonl",
+    }
+
+    metric = metrics.accuracy_score
+
     @classmethod
-    def _read_instances(cls, dataset_path, split):
+    def _question_to_categories(cls, question) -> str:
+        for start, end, categories in cls._QUESTION_TEMPLATES:
+            if question.startswith(start) and question.endswith(end):
+                return categories
+
+        return ["x_want", "o_want"]
+
+    @classmethod
+    def read_raw_instances(
+        cls, dataset_path, split
+    ) -> List[MultipleChoiceInstance]:
         with ZipFile(dataset_path) as dataset_zip:
             features_path = cls._file_names[split]["features"]
             with dataset_zip.open(features_path, "r") as features_file:
@@ -54,7 +82,40 @@ class SocialIQADataset(Dataset):
             for feature, label in zip(features, labels)
         ]
 
-    def __init__(self, dataset_path, split):
+    def _read_data(self):
+        ids, features, labels = [], [], []
+
+        split_path = os.path.join(
+            self.data_dir,
+            self.preprocessed_path_templates["atomic"].format(split=self.split),
+        )
+        with open(split_path, "r") as split_file:
+            for i, ln in enumerate(split_file):
+                row = json.loads(ln)
+
+                categories = self._question_to_categories(
+                    row["features"]["question"]["text"]
+                )
+
+                ids.append(f"id{i}")
+                features.append(
+                    (
+                        row["features"]["context"]["text"],
+                        row["features"]["context"][categories[0]],
+                        row["features"]["context"][categories[1]],
+                        row["features"]["question"]["text"],
+                        [answer["text"] for answer in row["answers"]],
+                    )
+                )
+                labels.append(row["label"])
+
+        return ids, features, labels
+
+    def __init__(
+        self, data_dir: str, split: str, transform: Optional[Callable] = None
+    ) -> None:
+        super().__init__()
+
         splits = self._file_names.keys()
         if split not in splits:
             raise ValueError(
@@ -62,9 +123,24 @@ class SocialIQADataset(Dataset):
                 f" {', '.join(splits)}."
             )
 
-        # bind arguments to the instance
-        self.dataset_path = dataset_path
+        self.data_dir = data_dir
         self.split = split
+        self.transform = transform
 
-        # load the datset's instances
-        self.instances = self._read_instances(dataset_path, split)
+        self.ids, self.features, self.labels = self._read_data()
+
+    def __len__(self) -> int:
+        return len(self.ids)
+
+    def __getitem__(self, key: int) -> Tuple[str, Any, Any]:
+        id_ = self.ids[key]
+        feature = self.features[key]
+        label = self.labels[key]
+
+        if self.transform:
+            feature = self.transform(feature)
+
+        return id_, feature, label
+
+
+DATASETS = {"socialiqa": SocialIQADataset}
