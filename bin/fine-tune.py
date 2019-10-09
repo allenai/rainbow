@@ -139,10 +139,11 @@ def fine_tune(
         raise ValueError(
             f'This script requires GPUs to be available in order to run.')
 
+    os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(map(str, gpu_ids))
+
     if not torch.cuda.is_available():
         raise EnvironmentError("CUDA must be available to use GPUs.")
 
-    os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(map(str, gpu_ids))
     device = torch.device("cuda")  # pylint: disable=no-member
 
     # Step 5: Load the dataset.
