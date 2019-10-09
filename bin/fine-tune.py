@@ -64,7 +64,7 @@ logger = logging.getLogger(__name__)
          ' https://nvidia.github.io/apex/amp.html#opt-levels-and-properties'
          ' for more information on the optimization levels.')
 @click.option(
-    '--use-augmentation', action='store_true',
+    '--use-augmentation', is_flag=True,
     help='Whether or not to use the augmented features for the dataset.')
 @click.option(
     '--gpu-ids', type=str, default='',
