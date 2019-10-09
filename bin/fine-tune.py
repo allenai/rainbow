@@ -64,6 +64,9 @@ logger = logging.getLogger(__name__)
          ' https://nvidia.github.io/apex/amp.html#opt-levels-and-properties'
          ' for more information on the optimization levels.')
 @click.option(
+    '--use-augmentation', action='store_true',
+    help='Whether or not to use the augmented features for the dataset.')
+@click.option(
     '--gpu-ids', type=str, default='',
     help='The GPU IDs to use for training as a comma-separated list.')
 def fine_tune(
@@ -78,6 +81,7 @@ def fine_tune(
         compute_train_batch_size: int,
         predict_batch_size: int,
         opt_level: str,
+        use_augmentation: bool,
         gpu_ids: str
 ) -> None:
     """Fine-tune on DATASET, writing results to RESULTS_DIR."""
@@ -168,11 +172,13 @@ def fine_tune(
     train = dataset_class(
         data_dir=data_dir,
         split='train',
-        transform=transform)
+        transform=transform,
+        use_augmentation=use_augmentation)
     dev = dataset_class(
         data_dir=data_dir,
         split='dev',
-        transform=transform)
+        transform=transform,
+        use_augmentation=use_augmentation)
     # fit the transform
     transform.fit(train.features)
 

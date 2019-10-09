@@ -96,22 +96,33 @@ class SocialIQADataset(Dataset):
                     row["features"]["question"]["text"]
                 )
 
-                ids.append(f"id{i}")
-                features.append(
-                    (
+                if self.use_augmentation:
+                    feature = (
                         row["features"]["context"]["text"],
                         row["features"]["context"][categories[0]],
                         row["features"]["context"][categories[1]],
                         row["features"]["question"]["text"],
                         [answer["text"] for answer in row["answers"]],
                     )
-                )
+                else:
+                    feature = (
+                        row["features"]["context"]["text"],
+                        row["features"]["question"]["text"],
+                        [answer["text"] for answer in row["answers"]],
+                    )
+
+                ids.append(f"id{i}")
+                features.append(feature)
                 labels.append(row["label"])
 
         return ids, features, labels
 
     def __init__(
-        self, data_dir: str, split: str, transform: Optional[Callable] = None
+        self,
+        data_dir: str,
+        split: str,
+        transform: Optional[Callable] = None,
+        use_augmentation: bool = False,
     ) -> None:
         super().__init__()
 
@@ -125,6 +136,7 @@ class SocialIQADataset(Dataset):
         self.data_dir = data_dir
         self.split = split
         self.transform = transform
+        self.use_augmentation = use_augmentation
 
         self.ids, self.features, self.labels = self._read_data()
 
