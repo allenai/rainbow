@@ -1,11 +1,11 @@
 """Preprocess a dataset to augment it with additional features."""
 
-import json
 import logging
 import os
 
 import attr
 import click
+import msgpack
 
 from rainbow import (
     comet,
@@ -83,10 +83,11 @@ def preprocess(
         unaugmented_path = os.path.join(
             output_dir,
             dataset_class.preprocessed_path_templates['original'].format(split=split))
-        with open(unaugmented_path, 'w') as unaugmented_file:
+        with open(unaugmented_path, 'wb') as unaugmented_file:
             for i, instance in enumerate(instances):
-                unaugmented_file.write(
-                    json.dumps(attr.asdict(instance)) + '\n')
+                unaugmented_file.write(msgpack.packb(
+                    attr.asdict(instance),
+                    use_bin_type=True))
 
         # augment the batches with ATOMIC
 
@@ -109,7 +110,7 @@ def preprocess(
         atomic_augmented_path = os.path.join(
             output_dir,
             dataset_class.preprocessed_path_templates['atomic'].format(split=split))
-        with open(atomic_augmented_path, 'w') as atomic_augmented_file:
+        with open(atomic_augmented_path, 'wb') as atomic_augmented_file:
             for i, instance in enumerate(instances):
                 instance = attr.evolve(
                     instance,
@@ -117,8 +118,9 @@ def preprocess(
                         feature_name: atomic_features[feature_name][i]
                         for feature_name in feature_names
                     })
-                atomic_augmented_file.write(
-                    json.dumps(attr.asdict(instance)) + '\n')
+                atomic_augmented_file.write(msgpack.packb(
+                    attr.asdict(instance),
+                    use_bin_type=True))
 
         # augment the batches with ConceptNet
 
@@ -141,7 +143,7 @@ def preprocess(
         conceptnet_augmented_path = os.path.join(
             output_dir,
             dataset_class.preprocessed_path_templates['conceptnet'].format(split=split))
-        with open(conceptnet_augmented_path, 'w') as conceptnet_augmented_file:
+        with open(conceptnet_augmented_path, 'wb') as conceptnet_augmented_file:
             for i, instance in enumerate(instances):
                 instance = attr.evolve(
                     instance,
@@ -149,8 +151,9 @@ def preprocess(
                         feature_name: conceptnet_features[feature_name][i]
                         for feature_name in feature_names
                     })
-                conceptnet_augmented_file.write(
-                    json.dumps(attr.asdict(instance)) + '\n')
+                conceptnet_augmented_file.write(msgpack.packb(
+                    attr.asdict(instance),
+                    use_bin_type=True))
 
     logger.info('Preprocessing is finished.')
 
