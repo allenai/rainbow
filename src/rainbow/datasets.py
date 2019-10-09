@@ -5,6 +5,7 @@ import os
 from typing import Any, Callable, List, Optional, Tuple
 from zipfile import ZipFile
 
+import msgpack
 from sklearn import metrics
 from torch.utils.data import Dataset
 
@@ -38,9 +39,9 @@ class SocialIQADataset(Dataset):
     ]
 
     preprocessed_path_templates = {
-        "atomic": "{split}.atomic-socialiqa.jsonl",
-        "conceptnet": "{split}.conceptnet-socialiqa.jsonl",
-        "original": "{split}.original-socialiqa.jsonl",
+        "atomic": "{split}.atomic-socialiqa.msg",
+        "conceptnet": "{split}.conceptnet-socialiqa.msg",
+        "original": "{split}.original-socialiqa.msg",
     }
 
     metric = metrics.accuracy_score
@@ -89,10 +90,8 @@ class SocialIQADataset(Dataset):
             self.data_dir,
             self.preprocessed_path_templates["atomic"].format(split=self.split),
         )
-        with open(split_path, "r") as split_file:
-            for i, ln in enumerate(split_file):
-                row = json.loads(ln)
-
+        with open(split_path, "rb") as split_file:
+            for i, row in enumerate(msgpack.Unpacker(split_file, raw=False)):
                 categories = self._question_to_categories(
                     row["features"]["question"]["text"]
                 )
