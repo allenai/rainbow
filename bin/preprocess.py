@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 @click.option(
     '--batch-size', type=int, default=128,
     help='The batch size to use for generating COMeT predictions.')
-def preprocess_dataset(
+def preprocess(
         dataset: str,
         dataset_path: str,
         atomic_comet_model_path: str,
@@ -156,4 +156,4 @@ def preprocess_dataset(
 
 
 if __name__ == '__main__':
-    preprocess_dataset()
+    preprocess()
