@@ -20,29 +20,29 @@ class Map(object):
 
         self._fitted = False
 
-    def fit(self, xs: Sequence[Sequence[Any]]) -> None:
+    def fit(self, xs: Sequence[Sequence[Any]], ys: Sequence[Any]) -> None:
         if hasattr(self.transform, "fit"):
-            self.transform.fit([x_part for x in xs for x_part in x])
+            self.transform.fit([x_part for x in xs for x_part in x], ys)
 
         self._fitted = True
 
-    def __call__(self, x: Sequence[Any]) -> List[Any]:
-        """Return ``x`` mapped by ``self.transform``.
-
-        Return ``x`` mapped by ``self.transform`` and cast to a list.
+    def __call__(self, x: Sequence[Any], y: Any) -> Tuple[List[Any], Any]:
+        """Return ``(x, y)`` with ``x`` mapped by ``self.transform``.
 
         Returns
         -------
         List[Any]
             ``x`` mapped by the transform with which this object was
             initialized, and then cast to a list.
+        Any
+            ``y``.
         """
         if not self._fitted:
             raise ValueError(
                 "The transform must be fitted before it can be called."
             )
 
-        return [self.transform(x_part) for x_part in x]
+        return [self.transform(x_part, y)[0] for x_part in x], y
 
 
 class Compose(object):
@@ -61,21 +61,26 @@ class Compose(object):
 
         self._fitted = False
 
-    def fit(self, xs: Sequence[Any]) -> None:
-        for transform in self.transforms:
-            if hasattr(transform, "fit"):
-                transform.fit(xs)
-            xs = [transform(x) for x in xs]
-
+    def fit(self, xs: Sequence[Any], ys: Sequence[Any]) -> None:
         self._fitted = True
 
-    def __call__(self, x: Any) -> Any:
-        """Return ``x`` with all the transforms applied.
+        if len(xs) == 0 and len(ys) == 0:
+            return
+
+        for transform in self.transforms:
+            if hasattr(transform, "fit"):
+                transform.fit(xs, ys)
+            xs, ys = zip(*[transform(x, y) for x, y in zip(xs, ys)])
+
+    def __call__(self, x: Any, y: Any) -> Tuple[Any, Any]:
+        """Return ``(x, y)`` with all the transforms applied.
 
         Returns
         -------
         Any
             The result of applying all the transforms to ``x``.
+        Any
+            The result of applying all the transforms to ``y``.
         """
         if not self._fitted:
             raise ValueError(
@@ -83,9 +88,9 @@ class Compose(object):
             )
 
         for transform in self.transforms:
-            x = transform(x)
+            x, y = transform(x, y)
 
-        return x
+        return x, y
 
 
 class DistributeContextTransform:
@@ -96,18 +101,23 @@ class DistributeContextTransform:
     with each of the choices separately:
 
         >>> transform = DistributeContextTransform()
-        >>> transform(('A question', ('A', 'B', 'C')))
-        [['A question', 'A'], ['A question', 'B'], ['A question', 'C']]
+        >>> transform(('A question', ('A', 'B', 'C')), True)
+        (
+            [['A question', 'A'], ['A question', 'B'], ['A question', 'C']],
+            True
+        )
 
     """
 
     def __init__(self) -> None:
         self._fitted = False
 
-    def fit(self, xs: Sequence[Sequence[Any]]) -> None:
+    def fit(self, xs: Sequence[Sequence[Any]], ys: Sequence[Any]) -> None:
         self._fitted = True
 
-    def __call__(self, x: Sequence[Any]) -> Sequence[Sequence[Any]]:
+    def __call__(
+        self, x: Sequence[Any], y: Any
+    ) -> Tuple[Sequence[Sequence[Any]], Any]:
         if not self._fitted:
             raise ValueError(
                 "The transform must be fitted before it can be called."
@@ -115,7 +125,7 @@ class DistributeContextTransform:
 
         x = list(x)
 
-        return [x[:-1] + [choice] for choice in x[-1]]
+        return [x[:-1] + [choice] for choice in x[-1]], y
 
 
 class LinearizeTransform(object):
@@ -174,8 +184,8 @@ class LinearizeTransform(object):
 
         self._fitted = False
 
-    def fit(self, xs: Sequence[Sequence[str]]) -> None:
-        """Fit this transformation to ``xs``.
+    def fit(self, xs: Sequence[Sequence[str]], ys: Sequence[Any]) -> None:
+        """Fit this transformation to ``xs`` and ``ys``.
 
         Fit ``max_sequence_length`` to be as small as possible without causing
         additional truncation of any instances in ``xs`` as tokenized by
@@ -183,37 +193,42 @@ class LinearizeTransform(object):
 
         Parameters
         ----------
-        tokenizer : transformers.RobertaTokenizer
-            The tokenizer to use.
         xs : Sequence[Sequence[str]]
             A sequence of sequences giving all the instances over which
             you wish to compute the max sequence length.
+        ys : Sequence[Any]
+            The labels.
         """
         self._fitted = True
 
         min_max_sequence_length = 0
-        for x in xs:
+        for x, y in zip(xs, ys):
             min_max_sequence_length = max(
-                min_max_sequence_length, np.sum(self(x)["input_mask"])
+                min_max_sequence_length, np.sum(self(x, y)[0]["input_mask"])
             )
         self.max_sequence_length = min_max_sequence_length
 
-    def __call__(self, x: Sequence[str]) -> Dict[str, List[int]]:
-        """Return ``x`` linearized into a sequence of token ids.
+    def __call__(
+        self, x: Sequence[str], y: Any
+    ) -> Tuple[Dict[str, List[int]], Any]:
+        """Return ``(x, y)`` with ``x`` linearized into token ids.
 
         Parameters
         ----------
         x : Sequence[str]
             The sequence of text to transform into linearized inputs.
+        y : Any
+            The label.
 
         Returns
         -------
-        input_ids : List[int]
-            The list of IDs for the tokenized word pieces.
-        input_mask : List[int]
-            A 0-1 mask for ``input_ids``.
-
-        Output is returned as a dictionary.
+        Dict[str, List[int]]
+            input_ids : List[int]
+                The list of IDs for the tokenized word pieces.
+            input_mask : List[int]
+                A 0-1 mask for ``input_ids``.
+        Any
+           The label.
         """
         if not self._fitted:
             raise ValueError(
@@ -238,7 +253,7 @@ class LinearizeTransform(object):
         input_ids = self.tokenizer.convert_tokens_to_ids(tokens) + padding
         input_mask = [1 for _ in range(len(tokens))] + padding
 
-        return {"input_ids": input_ids, "input_mask": input_mask}
+        return {"input_ids": input_ids, "input_mask": input_mask}, y
 
     def _truncate(self, x: Sequence[List[str]]) -> Sequence[List[str]]:
         """Return ``x`` truncated to ``self.max_sequence_length``.

@@ -149,7 +149,7 @@ class SocialIQADataset(Dataset):
         label = self.labels[key]
 
         if self.transform:
-            feature = self.transform(feature)
+            feature, label = self.transform(feature, label)
 
         return id_, feature, label
 
