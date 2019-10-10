@@ -159,16 +159,19 @@ def fine_tune(
                     'roberta-large'),
                 max_sequence_length=512,
                 truncation_strategy='beginning')),
-        lambda ds: {
-            'input_ids': torch.stack([
-                torch.tensor(d['input_ids'])
-                for d in ds
-            ], dim=0),
-            'attention_mask': torch.stack([
-                torch.tensor(d['input_mask'])
-                for d in ds
-            ], dim=0)
-        }
+        lambda ds, y: (
+            {
+                'input_ids': torch.stack([
+                    torch.tensor(d['input_ids'])
+                    for d in ds
+                ], dim=0),
+                'attention_mask': torch.stack([
+                    torch.tensor(d['input_mask'])
+                    for d in ds
+                ], dim=0)
+            },
+            y
+        )
     ])
     train = dataset_class(
         data_dir=data_dir,
@@ -181,7 +184,7 @@ def fine_tune(
         transform=transform,
         use_augmentation=use_augmentation)
     # fit the transform
-    transform.fit(train.features)
+    transform.fit(train.features, train.labels)
 
     train_loader = DataLoader(
         dataset=train,

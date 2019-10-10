@@ -13,41 +13,44 @@ class MapTestCase(unittest.TestCase):
     """Test rainbow.transforms.Map."""
 
     def test_mapping_the_empty_list(self):
-        transform = transforms.Map(lambda x: x ** 2)
-        transform.fit([])
+        transform = transforms.Map(lambda x, y: (x ** 2, y))
+        transform.fit([], [])
 
-        self.assertEqual(transform([]), [])
+        self.assertEqual(transform([], None), ([], None))
 
     def test_it_maps_a_mocked_function(self):
-        mock = Mock(return_value="foo")
+        mock = Mock(return_value=("foo", 1))
 
         transform = transforms.Map(mock)
-        transform.fit([])
+        transform.fit([], [])
 
-        self.assertEqual(transform([1, 2, 3]), ["foo", "foo", "foo"])
+        self.assertEqual(transform([1, 2, 3], 1), (["foo", "foo", "foo"], 1))
 
-        mock.assert_any_call(1)
-        mock.assert_any_call(2)
-        mock.assert_any_call(3)
+        mock.assert_any_call(1, 1)
+        mock.assert_any_call(2, 1)
+        mock.assert_any_call(3, 1)
 
         self.assertEqual(mock.call_count, 3)
 
     def test_it_maps_an_actual_function(self):
-        transform = transforms.Map(transform=lambda x: x ** 2)
-        transform.fit([])
+        transform = transforms.Map(transform=lambda x, y: (x ** 2, y))
+        transform.fit([], [])
 
-        self.assertEqual(transform([1, 2, 3]), [1, 4, 9])
+        self.assertEqual(transform([1, 2, 3], True), ([1, 4, 9], True))
 
-        transform = transforms.Map(transform=str.lower)
-        transform.fit([])
+        transform = transforms.Map(transform=lambda x, y: (x.lower(), y))
+        transform.fit([], [])
 
-        self.assertEqual(transform(["Aa", "BB", "cC"]), ["aa", "bb", "cc"])
+        self.assertEqual(
+            transform(["Aa", "BB", "cC"], "label"),
+            (["aa", "bb", "cc"], "label"),
+        )
 
     def test_mapping_different_sequence_types(self):
-        transform = transforms.Map(transform=lambda x: x ** 2)
-        transform.fit([])
+        transform = transforms.Map(transform=lambda x, y: (x ** 2, y))
+        transform.fit([], [])
 
-        self.assertEqual(transform((1, 2, 3)), [1, 4, 9])
+        self.assertEqual(transform((1, 2, 3), False), ([1, 4, 9], False))
 
 
 class ComposeTestCase(unittest.TestCase):
@@ -56,59 +59,63 @@ class ComposeTestCase(unittest.TestCase):
     def test_fit(self):
         # test fit does not throw an error if one of the transforms doesn't
         # have a fit method
-        transform = transforms.Compose([lambda x: x ** 2])
-        transform.fit([1, 2, 3])
+        transform = transforms.Compose([lambda x, y: (x ** 2, y)])
+        transform.fit([1, 2, 3], [True, True, False])
 
         # test fit fits the transforms
-        mock1 = Mock(return_value="bar")
-        mock2 = Mock(return_value="baz")
+        mock1 = Mock(return_value=("bar", 1))
+        mock2 = Mock(return_value=("baz", 2))
 
         transform = transforms.Compose([mock1, mock2])
-        transform.fit([1, 2, 3])
+        transform.fit([1, 2, 3], [True, False, None])
 
-        mock1.fit.assert_called_with([1, 2, 3])
-        mock2.fit.assert_called_with(["bar", "bar", "bar"])
+        mock1.fit.assert_called_with([1, 2, 3], [True, False, None])
+        mock2.fit.assert_called_with(("bar", "bar", "bar"), (1, 1, 1))
 
     def test___call__(self):
-        transform = transforms.Compose([lambda x: x + 1])
+        transform = transforms.Compose([lambda x, y: (x + 1, y)])
 
         # test __call__ throws an error if transform hasn't been fitted
         with self.assertRaises(ValueError):
-            transform(1)
+            transform(1, None)
 
-        transform.fit([])
+        transform.fit([], [])
 
-        self.assertEqual(transform(1), 2)
+        self.assertEqual(transform(1, None), (2, None))
 
     def test_empty_list_is_identity(self):
         transform = transforms.Compose([])
-        transform.fit([])
+        transform.fit([], [])
 
-        self.assertEqual(transform(1), 1)
-        self.assertEqual(transform("a"), "a")
+        self.assertEqual(transform(1, True), (1, True))
+        self.assertEqual(transform("a", False), ("a", False))
 
     def test_composes_mocked_functions(self):
-        mock1 = Mock(return_value="bar")
-        mock2 = Mock(return_value="baz")
+        mock1 = Mock(return_value=("bar", 1))
+        mock2 = Mock(return_value=("baz", 2))
 
         transform = transforms.Compose([mock1, mock2])
-        transform.fit([])
+        transform.fit([], [])
 
-        self.assertEqual(transform("foo"), "baz")
+        self.assertEqual(transform("foo", 0), ("baz", 2))
 
-        mock1.assert_called_with("foo")
-        mock2.assert_called_with("bar")
+        mock1.assert_called_with("foo", 0)
+        mock2.assert_called_with("bar", 1)
 
     def test_composes_actual_functions(self):
-        transform = transforms.Compose([lambda x: x ** 2, lambda x: x + 1])
-        transform.fit([])
+        transform = transforms.Compose(
+            [lambda x, y: (x ** 2, y + 1), lambda x, y: (x + 1, -y)]
+        )
+        transform.fit([], [])
 
-        self.assertEqual(transform(-2), 5)
+        self.assertEqual(transform(-2, 1), (5, -2))
 
-        transform = transforms.Compose([lambda s: s.lower(), lambda s: s + "b"])
-        transform.fit([])
+        transform = transforms.Compose(
+            [lambda x, y: (x.lower(), y), lambda x, y: (x + "b", y)]
+        )
+        transform.fit([], [])
 
-        self.assertEqual(transform("A"), "ab")
+        self.assertEqual(transform("A", None), ("ab", None))
 
 
 class DistributeContextTransformTestCase(unittest.TestCase):
@@ -116,24 +123,27 @@ class DistributeContextTransformTestCase(unittest.TestCase):
 
     def test_fit(self):
         transform = transforms.DistributeContextTransform()
-        transform.fit([])
+        transform.fit([], [])
 
     def test___call__(self):
         transform = transforms.DistributeContextTransform()
 
         # test __call__ throws an error if transform hasn't been fitted
         with self.assertRaises(ValueError):
-            transform(["a"])
+            transform(["a"], True)
 
-        transform.fit([])
+        transform.fit([], [])
 
         self.assertEqual(
-            transform(("The question", ("A", "B", "C"))),
-            [
-                ["The question", "A"],
-                ["The question", "B"],
-                ["The question", "C"],
-            ],
+            transform(("The question", ("A", "B", "C")), True),
+            (
+                [
+                    ["The question", "A"],
+                    ["The question", "B"],
+                    ["The question", "C"],
+                ],
+                True,
+            ),
         )
         self.assertEqual(
             transform(
@@ -141,13 +151,17 @@ class DistributeContextTransformTestCase(unittest.TestCase):
                     "Some context about the question",
                     "The question",
                     ("A", "B", "C"),
-                )
+                ),
+                False,
             ),
-            [
-                ["Some context about the question", "The question", "A"],
-                ["Some context about the question", "The question", "B"],
-                ["Some context about the question", "The question", "C"],
-            ],
+            (
+                [
+                    ["Some context about the question", "The question", "A"],
+                    ["Some context about the question", "The question", "B"],
+                    ["Some context about the question", "The question", "C"],
+                ],
+                False,
+            ),
         )
 
 
@@ -162,7 +176,7 @@ class LinearizeTransformTestCase(unittest.TestCase):
             max_sequence_length=10,
             truncation_strategy="beginning",
         )
-        transform.fit([])
+        transform.fit([], [])
         self.assertEqual(transform.max_sequence_length, 0)
 
         # check that the size goes down on a non-empty list
@@ -171,7 +185,7 @@ class LinearizeTransformTestCase(unittest.TestCase):
             max_sequence_length=10,
             truncation_strategy="beginning",
         )
-        transform.fit([["I"], ["oh"], ["I am"]])
+        transform.fit([["I"], ["oh"], ["I am"]], [0, 1, 1])
         self.assertEqual(transform.max_sequence_length, 4)
 
         # check that the size does not go up
@@ -180,7 +194,7 @@ class LinearizeTransformTestCase(unittest.TestCase):
             max_sequence_length=3,
             truncation_strategy="beginning",
         )
-        transform.fit([["I am."]])
+        transform.fit([["I am."]], [0])
         self.assertEqual(transform.max_sequence_length, 3)
 
     @pytest.mark.slow
@@ -193,7 +207,7 @@ class LinearizeTransformTestCase(unittest.TestCase):
 
         # test __call__ throws an error if transform hasn't been fitted
         with self.assertRaises(ValueError):
-            transform(["a"])
+            transform(["a"], True)
 
     @pytest.mark.slow
     def test_it_transforms_text_correctly(self):
@@ -208,12 +222,13 @@ class LinearizeTransformTestCase(unittest.TestCase):
         # artificially fit the transform
         transform._fitted = True
 
-        transformed = transform(["This sentence is for testing."])
+        transformed = transform(["This sentence is for testing."], True)
         self.assertEqual(
-            transformed["input_ids"], [0, 713, 3645, 16, 13, 3044, 4, 2, 0, 0]
+            transformed[0]["input_ids"],
+            [0, 713, 3645, 16, 13, 3044, 4, 2, 0, 0],
         )
         self.assertEqual(
-            transformed["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+            transformed[0]["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
         )
 
         # test the input sequence has length 2
@@ -229,10 +244,11 @@ class LinearizeTransformTestCase(unittest.TestCase):
             [
                 "This sentence is for testing.",
                 "This sentence is also for testing.",
-            ]
+            ],
+            "A",
         )
         self.assertEqual(
-            transformed["input_ids"],
+            transformed[0]["input_ids"],
             [
                 0,
                 713,
@@ -255,7 +271,7 @@ class LinearizeTransformTestCase(unittest.TestCase):
             ],
         )
         self.assertEqual(
-            transformed["input_mask"],
+            transformed[0]["input_mask"],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
         )
 
@@ -271,10 +287,10 @@ class LinearizeTransformTestCase(unittest.TestCase):
 
         # when the first text is more than half the max length
         transformed = transform(
-            ["A sentence that is more than 8 word pieces.", "Short."]
+            ["A sentence that is more than 8 word pieces.", "Short."], True
         )
         self.assertEqual(
-            transformed["input_ids"],
+            transformed[0]["input_ids"],
             [
                 0,
                 250,
@@ -295,15 +311,15 @@ class LinearizeTransformTestCase(unittest.TestCase):
             ],
         )
         self.assertEqual(
-            transformed["input_mask"],
+            transformed[0]["input_mask"],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         )
         # when the second text is more than half the max length
         transformed = transform(
-            ["Short.", "A sentence that is more than 8 word pieces."]
+            ["Short.", "A sentence that is more than 8 word pieces."], False
         )
         self.assertEqual(
-            transformed["input_ids"],
+            transformed[0]["input_ids"],
             [
                 0,
                 34256,
@@ -324,17 +340,17 @@ class LinearizeTransformTestCase(unittest.TestCase):
             ],
         )
         self.assertEqual(
-            transformed["input_mask"],
+            transformed[0]["input_mask"],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         )
         # when both texts are less than half the max length
-        transformed = transform(["Short.", "Also short."])
+        transformed = transform(["Short.", "Also short."], 1)
         self.assertEqual(
-            transformed["input_ids"],
+            transformed[0]["input_ids"],
             [0, 34256, 4, 2, 2, 22412, 765, 4, 2, 0, 0, 0, 0, 0, 0, 0],
         )
         self.assertEqual(
-            transformed["input_mask"],
+            transformed[0]["input_mask"],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
         )
 
@@ -350,25 +366,25 @@ class LinearizeTransformTestCase(unittest.TestCase):
 
         # when the first text is longer
         transformed = transform(
-            ["A sentence that is more than 8 word pieces.", "Short."]
+            ["A sentence that is more than 8 word pieces.", "Short."], 0
         )
         self.assertEqual(
-            transformed["input_ids"],
+            transformed[0]["input_ids"],
             [0, 250, 3645, 14, 16, 55, 87, 2, 2, 34256, 4, 2],
         )
         self.assertEqual(
-            transformed["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            transformed[0]["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         )
         # when the second text is longer
         transformed = transform(
-            ["Short.", "A sentence that is more than 8 word pieces."]
+            ["Short.", "A sentence that is more than 8 word pieces."], 1
         )
         self.assertEqual(
-            transformed["input_ids"],
+            transformed[0]["input_ids"],
             [0, 34256, 4, 2, 2, 250, 3645, 14, 16, 55, 87, 2],
         )
         self.assertEqual(
-            transformed["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            transformed[0]["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         )
 
     @pytest.mark.slow
@@ -385,14 +401,15 @@ class LinearizeTransformTestCase(unittest.TestCase):
             [
                 "This sentence is a test.",
                 "A sentence that is more than 8 word pieces.",
-            ]
+            ],
+            0,
         )
         self.assertEqual(
-            transformed["input_ids"],
+            transformed[0]["input_ids"],
             [0, 713, 3645, 16, 10, 2, 2, 250, 3645, 14, 16, 2],
         )
         self.assertEqual(
-            transformed["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            transformed[0]["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         )
 
     @pytest.mark.slow
@@ -407,14 +424,14 @@ class LinearizeTransformTestCase(unittest.TestCase):
         transform._fitted = True
 
         transformed = transform(
-            ["A sentence that is more than 8 word pieces.", "Short."]
+            ["A sentence that is more than 8 word pieces.", "Short."], 3
         )
         self.assertEqual(
-            transformed["input_ids"],
+            transformed[0]["input_ids"],
             [0, 250, 3645, 14, 16, 55, 2, 2, 34256, 4, 2],
         )
         self.assertEqual(
-            transformed["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            transformed[0]["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         )
 
         # test ending strategy for first text
@@ -427,14 +444,14 @@ class LinearizeTransformTestCase(unittest.TestCase):
         transform._fitted = True
 
         transformed = transform(
-            ("A sentence that is more than 8 word pieces.", "Short.")
+            ("A sentence that is more than 8 word pieces.", "Short."), False
         )
         self.assertEqual(
-            transformed["input_ids"],
+            transformed[0]["input_ids"],
             [0, 87, 290, 2136, 3745, 4, 2, 2, 34256, 4, 2],
         )
         self.assertEqual(
-            transformed["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            transformed[0]["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         )
 
         # test beginning strategy for second text
@@ -447,14 +464,14 @@ class LinearizeTransformTestCase(unittest.TestCase):
         transform._fitted = True
 
         transformed = transform(
-            ("Short.", "A sentence that is more than 8 word pieces.")
+            ("Short.", "A sentence that is more than 8 word pieces."), 2
         )
         self.assertEqual(
-            transformed["input_ids"],
+            transformed[0]["input_ids"],
             [0, 34256, 4, 2, 2, 250, 3645, 14, 16, 55, 2],
         )
         self.assertEqual(
-            transformed["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            transformed[0]["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         )
 
         # test ending strategy for second text
@@ -467,12 +484,12 @@ class LinearizeTransformTestCase(unittest.TestCase):
         transform._fitted = True
 
         transformed = transform(
-            ("Short.", "A sentence that is more than 8 word pieces.")
+            ("Short.", "A sentence that is more than 8 word pieces."), 1
         )
         self.assertEqual(
-            transformed["input_ids"],
+            transformed[0]["input_ids"],
             [0, 34256, 4, 2, 2, 87, 290, 2136, 3745, 4, 2],
         )
         self.assertEqual(
-            transformed["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            transformed[0]["input_mask"], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         )
