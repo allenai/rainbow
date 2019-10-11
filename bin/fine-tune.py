@@ -126,6 +126,7 @@ def fine_tune(
                 'compute_train_batch_size': compute_train_batch_size,
                 'predict_batch_size': predict_batch_size,
                 'opt_level': opt_level,
+                'use_augmentation': use_augmentation,
                 'gpu_ids': gpu_ids
             },
             config_file)
