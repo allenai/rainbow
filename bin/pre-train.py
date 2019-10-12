@@ -67,8 +67,8 @@ logger = logging.getLogger(__name__)
     '--use-augmentation', is_flag=True,
     help='Whether or not to use the augmented features for the dataset.')
 @click.option(
-    '--gpu-ids', type=str, default='',
-    help='The GPU IDs to use for training as a comma-separated list.')
+    '--gpu-id', type=int, required=True,
+    help='The GPU ID to use for training.')
 def pre_train(
         dataset: str,
         data_dir: str,
@@ -82,7 +82,7 @@ def pre_train(
         predict_batch_size: int,
         opt_level: str,
         use_augmentation: bool,
-        gpu_ids: str
+        gpu_id: int
 ) -> None:
     """Pre-train on DATASET, writing results to RESULTS_DIR."""
     utils.configure_logging()
@@ -127,24 +127,16 @@ def pre_train(
                 'predict_batch_size': predict_batch_size,
                 'opt_level': opt_level,
                 'use_augmentation': use_augmentation,
-                'gpu_ids': gpu_ids
+                'gpu_id': gpu_id
             },
             config_file)
 
     # Step 4: Configure GPUs.
-    logger.info(f'Configuring environment to use GPU(s): {gpu_ids}.')
+    logger.info(f'Configuring environment to use GPU: {gpu_id}.')
 
-    gpu_ids = [int(gpu_id) for gpu_id in gpu_ids.split(',')]
-
-    if len(gpu_ids) == 0:
-        raise ValueError(
-            'This script requires GPUs to be available in order to run.')
-
-    os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(map(str, gpu_ids))
-
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
     if not torch.cuda.is_available():
         raise EnvironmentError("CUDA must be available to use GPUs.")
-
     device = torch.device("cuda")  # pylint: disable=no-member
 
     # Step 5: Load the dataset.
@@ -189,16 +181,16 @@ def pre_train(
 
     train_loader = DataLoader(
         dataset=train,
-        batch_size=len(gpu_ids) * compute_train_batch_size,
+        batch_size=compute_train_batch_size,
         shuffle=True,
-        num_workers=len(gpu_ids),
-        pin_memory=bool(gpu_ids))
+        num_workers=4,
+        pin_memory=True)
     dev_loader = DataLoader(
         dataset=dev,
         batch_size=predict_batch_size,
         shuffle=False,
-        num_workers=len(gpu_ids),
-        pin_memory=bool(gpu_ids))
+        num_workers=4,
+        pin_memory=True)
 
     # Step 6: Create the model, optimizer, and loss.
     logger.info('Initializing the model.')
@@ -208,8 +200,7 @@ def pre_train(
     model.to(device)
 
     n_gradient_accumulation = math.ceil(
-        train_batch_size
-        / (compute_train_batch_size * len(gpu_ids)))
+        train_batch_size / compute_train_batch_size)
     n_optimization_steps = n_epochs * math.ceil(len(train) / train_batch_size)
 
     parameter_groups = [
