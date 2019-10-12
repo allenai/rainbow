@@ -67,6 +67,11 @@ logger = logging.getLogger(__name__)
     '--use-augmentation', is_flag=True,
     help='Whether or not to use the augmented features for the dataset.')
 @click.option(
+    '--pretrained-weights', type=str, default='roberta-large',
+    help='The pretrained weights for initializing the model. The pretrained'
+         ' weights must be compatible with the roberta-large'
+         ' tokenizer. Defaults to "roberta-large".')
+@click.option(
     '--gpu-id', type=int, required=True,
     help='The GPU ID to use for training.')
 def fine_tune(
@@ -82,6 +87,7 @@ def fine_tune(
         predict_batch_size: int,
         opt_level: str,
         use_augmentation: bool,
+        pretrained_weights: str,
         gpu_id: int
 ) -> None:
     """Fine-tune on DATASET, writing results to RESULTS_DIR."""
@@ -127,6 +133,7 @@ def fine_tune(
                 'predict_batch_size': predict_batch_size,
                 'opt_level': opt_level,
                 'use_augmentation': use_augmentation,
+                'pretrained_weights': pretrained_weights,
                 'gpu_id': gpu_id
             },
             config_file)
@@ -196,7 +203,7 @@ def fine_tune(
     logger.info('Initializing the model.')
 
     model = transformers.modeling_roberta.RobertaForMultipleChoice.from_pretrained(
-        'roberta-large')
+        pretrained_weights)
     model.to(device)
 
     n_gradient_accumulation = math.ceil(
