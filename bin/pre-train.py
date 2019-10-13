@@ -252,7 +252,7 @@ def pre_train(
 
     writer = tensorboardX.SummaryWriter(log_dir=tensorboard_dir)
 
-    best_dev_score = -math.inf
+    best_dev_loss = math.inf
     for epoch in range(n_epochs):
         # set the model to training mode
         model.train()
@@ -461,16 +461,21 @@ def pre_train(
             last_checkpoint_path)
 
         # update the current best model
-        if epoch_dev_score > best_dev_score:
+        if epoch_dev_loss < best_dev_loss:
             shutil.copyfile(last_checkpoint_path, best_checkpoint_path)
-            best_dev_score = epoch_dev_score
+            best_dev_loss = epoch_dev_loss
 
         # exit early if the training loss has diverged
         if math.isnan(epoch_train_loss):
             logger.info('Training loss has diverged. Exiting early.')
             return
 
-    logger.info(f'Training complete. Best dev score was {best_dev_score:.4f}')
+    logger.info('Saving the best checkpoint as a pre-trained model.')
+
+    model.load_state_dict(torch.load(best_checkpoint_path)['model'])
+    model.save_pretrained(results_dir)
+
+    logger.info(f'Training complete. Best dev loss was {best_dev_loss:.4f}')
 
 
 if __name__ == '__main__':
