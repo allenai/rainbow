@@ -16,6 +16,7 @@ import transformers
 
 from rainbow import (
     datasets,
+    models,
     settings,
     transforms,
     utils)
@@ -202,7 +203,7 @@ def pre_train(
     # Step 6: Create the model, optimizer, and loss.
     logger.info('Initializing the model.')
 
-    model = transformers.modeling_roberta.RobertaForMaskedLM.from_pretrained(
+    model = models.modeling_roberta.RobertaForMaskedLM.from_pretrained(
         pretrained_weights)
     model.to(device)
 
