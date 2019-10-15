@@ -633,7 +633,51 @@ class BertModel(BertPreTrainedModel):
         token_type_ids=None,
         position_ids=None,
         head_mask=None,
+        embeddings=None,
     ):
+        if embeddings is not None:
+            batch_size, n_embeddings, embedding_dim = embeddings.shape
+
+            # modify the input ids
+            input_ids = torch.cat(  # pylint: disable=no-member
+                [
+                    torch.zeros(  # pylint: disable=no-member
+                        (batch_size, n_embeddings),
+                        dtype=torch.long,  # pylint: disable=no-member
+                        device=input_ids.device,
+                    ),
+                    input_ids,
+                ],
+                dim=-1,
+            )
+            # check that the position ids are None
+            if position_ids is not None:
+                raise ValueError(
+                    "position_ids must be None when embeddings is not None."
+                )
+            # check that the token type ids are None
+            if token_type_ids is not None:
+                raise ValueError(
+                    "token_type_ids must be None when embeddings is not None."
+                )
+            # check that the head mask is None
+            if head_mask is not None:
+                raise ValueError(
+                    "head_mask must be None when embeddings is not None."
+                )
+            # modify the attention mask
+            attention_mask = torch.cat(  # pylint: disable=no-member
+                [
+                    torch.ones(  # pylint: disable=no-member
+                        (batch_size, n_embeddings),
+                        dtype=torch.long,  # pylint: disable=no-member
+                        device=attention_mask.device,
+                    ),
+                    attention_mask,
+                ],
+                dim=-1,
+            )
+
         if attention_mask is None:
             attention_mask = torch.ones_like(  # pylint: disable=no-member
                 input_ids
@@ -689,10 +733,15 @@ class BertModel(BertPreTrainedModel):
         embedding_output = self.embeddings(
             input_ids, position_ids=position_ids, token_type_ids=token_type_ids
         )
+        if embeddings is not None:
+            embedding_output[:, :n_embeddings, :] = 0
+            embedding_output[:, :n_embeddings, :embedding_dim] = embeddings
         encoder_outputs = self.encoder(
             embedding_output, extended_attention_mask, head_mask=head_mask
         )
         sequence_output = encoder_outputs[0]
+        if embeddings is not None:
+            sequence_output = sequence_output[:, n_embeddings:, :]
         pooled_output = self.pooler(sequence_output)
 
         outputs = (sequence_output, pooled_output) + encoder_outputs[

@@ -1,6 +1,5 @@
 """Settings for rainbow."""
 
-
 # Logging and output
 
 LOG_FORMAT = "%(asctime)s:%(levelname)s:%(name)s: %(message)s"
