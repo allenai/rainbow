@@ -32,15 +32,16 @@ import logging
 import torch
 import torch.nn as nn
 from torch.nn import CrossEntropyLoss, MSELoss
-from transformers.modeling_bert import (
+from transformers.configuration_roberta import RobertaConfig
+from transformers.file_utils import add_start_docstrings
+
+from .modeling_bert import (
     BertEmbeddings,
     BertLayerNorm,
     BertModel,
     BertPreTrainedModel,
     gelu,
 )
-from transformers.configuration_roberta import RobertaConfig
-from transformers.file_utils import add_start_docstrings
 
 logger = logging.getLogger(__name__)
 
