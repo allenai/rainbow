@@ -206,6 +206,7 @@ class RobertaModel(BertModel):
         token_type_ids=None,
         position_ids=None,
         head_mask=None,
+        embeddings=None,
     ):
         if input_ids[:, 0].sum().item() != 0:
             logger.warning(
@@ -220,6 +221,7 @@ class RobertaModel(BertModel):
             token_type_ids=token_type_ids,
             position_ids=position_ids,
             head_mask=head_mask,
+            embeddings=embeddings,
         )
 
 
@@ -287,6 +289,7 @@ class RobertaForMaskedLM(BertPreTrainedModel):
         position_ids=None,
         head_mask=None,
         masked_lm_labels=None,
+        embeddings=None,
     ):
         outputs = self.roberta(
             input_ids,
@@ -294,6 +297,7 @@ class RobertaForMaskedLM(BertPreTrainedModel):
             token_type_ids=token_type_ids,
             position_ids=position_ids,
             head_mask=head_mask,
+            embeddings=embeddings,
         )
         sequence_output = outputs[0]
         prediction_scores = self.lm_head(sequence_output)
@@ -436,6 +440,7 @@ class RobertaForMultipleChoice(BertPreTrainedModel):
         labels=None,
         position_ids=None,
         head_mask=None,
+        embeddings=None,
     ):
         num_choices = input_ids.shape[1]
 
@@ -455,12 +460,18 @@ class RobertaForMultipleChoice(BertPreTrainedModel):
             if attention_mask is not None
             else None
         )
+        flat_embeddings = (
+            embeddings.repeat_interleave(num_choices, dim=0)
+            if embeddings is not None
+            else None
+        )
         outputs = self.roberta(
             flat_input_ids,
             position_ids=flat_position_ids,
             token_type_ids=flat_token_type_ids,
             attention_mask=flat_attention_mask,
             head_mask=head_mask,
+            embeddings=flat_embeddings,
         )
         pooled_output = outputs[1]
 
