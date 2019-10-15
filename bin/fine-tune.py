@@ -65,8 +65,11 @@ logger = logging.getLogger(__name__)
          ' https://nvidia.github.io/apex/amp.html#opt-levels-and-properties'
          ' for more information on the optimization levels.')
 @click.option(
-    '--use-augmentation', is_flag=True,
-    help='Whether or not to use the augmented features for the dataset.')
+    '--augmentation-type',
+    type=click.Choice(datasets.AUGMENTATION_TYPES),
+    default='original',
+    help='The type of augmentation to use on the dataset. Defaults to'
+         ' "original".')
 @click.option(
     '--pretrained-weights', type=str, default='roberta-large',
     help='The pretrained weights for initializing the model. The pretrained'
@@ -87,7 +90,7 @@ def fine_tune(
         compute_train_batch_size: int,
         predict_batch_size: int,
         opt_level: str,
-        use_augmentation: bool,
+        augmentation_type: str,
         pretrained_weights: str,
         gpu_id: int
 ) -> None:
@@ -133,7 +136,7 @@ def fine_tune(
                 'compute_train_batch_size': compute_train_batch_size,
                 'predict_batch_size': predict_batch_size,
                 'opt_level': opt_level,
-                'use_augmentation': use_augmentation,
+                'augmentation_type': augmentation_type,
                 'pretrained_weights': pretrained_weights,
                 'gpu_id': gpu_id
             },
@@ -174,16 +177,20 @@ def fine_tune(
             y
         )
     ])
+    transform_embedding = lambda e: torch.tensor(e)
+
     train = dataset_class(
         data_dir=data_dir,
         split='train',
         transform=transform,
-        use_augmentation=use_augmentation)
+        transform_embedding=transform_embedding,
+        augmentation_type=augmentation_type)
     dev = dataset_class(
         data_dir=data_dir,
         split='dev',
         transform=transform,
-        use_augmentation=use_augmentation)
+        transform_embedding=transform_embedding,
+        augmentation_type=augmentation_type)
     # fit the transform
     transform.fit(train.features, train.labels)
 
@@ -262,17 +269,25 @@ def fine_tune(
         epoch_train_loss = 0
         epoch_train_labels = []
         epoch_train_predictions = []
-        for i, (_, features, labels) in tqdm.tqdm(
+        for i, (_, features, embeddings, labels) in tqdm.tqdm(
             enumerate(train_loader),
             total=n_gradient_accumulation * n_train_batches_per_epoch,
             **settings.TQDM_KWARGS,
         ):
+            if augmentation_type not in ['atomic_vector']:
+                embeddings = None
+
             # move the data onto the device
             features = {k: v.to(device) for k, v in features.items()}
+            embeddings = (
+                embeddings.to(device)
+                if embeddings is not None
+                else None
+            )
             labels = labels.to(device)
 
             # make predictions
-            logits = model(**features)[0]
+            logits = model(embeddings=embeddings, **features)[0]
             _, predictions = torch.max(logits, 1)  # pylint: disable=no-member
 
             batch_loss = loss(logits, labels)
@@ -321,17 +336,25 @@ def fine_tune(
             epoch_dev_loss = 0
             epoch_dev_labels = []
             epoch_dev_predictions = []
-            for i, (_, features, labels) in tqdm.tqdm(
+            for i, (_, features, embeddings, labels) in tqdm.tqdm(
                 enumerate(dev_loader),
                 total=n_dev_batches_per_epoch,
                 **settings.TQDM_KWARGS,
             ):
+                if augmentation_type not in ['atomic_vector']:
+                    embeddings = None
+
                 # move the data onto the device
                 features = {k: v.to(device) for k, v in features.items()}
+                embeddings = (
+                    embeddings.to(device)
+                    if embeddings is not None
+                    else None
+                )
                 labels = labels.to(device)
 
                 # make predictions
-                logits = model(**features)[0]
+                logits = model(embeddings=embeddings, **features)[0]
                 _, predictions = torch.max(logits, 1)  # pylint: disable=no-member
 
                 batch_loss = loss(logits, labels)
