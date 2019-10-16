@@ -274,14 +274,11 @@ def fine_tune(
             total=n_gradient_accumulation * n_train_batches_per_epoch,
             **settings.TQDM_KWARGS,
         ):
-            if augmentation_type not in ['atomic_vector']:
-                embeddings = None
-
             # move the data onto the device
             features = {k: v.to(device) for k, v in features.items()}
             embeddings = (
                 embeddings.to(device)
-                if embeddings is not None
+                if augmentation_type in ['atomic_vector']
                 else None
             )
             labels = labels.to(device)
@@ -341,14 +338,11 @@ def fine_tune(
                 total=n_dev_batches_per_epoch,
                 **settings.TQDM_KWARGS,
             ):
-                if augmentation_type not in ['atomic_vector']:
-                    embeddings = None
-
                 # move the data onto the device
                 features = {k: v.to(device) for k, v in features.items()}
                 embeddings = (
                     embeddings.to(device)
-                    if embeddings is not None
+                    if augmentation_type in ['atomic_vector']
                     else None
                 )
                 labels = labels.to(device)

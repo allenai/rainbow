@@ -274,21 +274,19 @@ def pre_train(
             total=n_gradient_accumulation * n_train_batches_per_epoch,
             **settings.TQDM_KWARGS,
         ):
-            if augmentation_type not in ['atomic_vector']:
-                embeddings = None
-
-            embeddings = (
-                embeddings.to(device)
-                if embeddings is not None
-                else None
-            )
-
             # move the data onto the device
             input_ids = features['input_ids']
             input_ids = input_ids.view(-1, input_ids.shape[-1]).to(device)
             attention_mask = features['attention_mask']
             attention_mask = attention_mask.view(
                 -1, attention_mask.shape[-1]).to(device)
+
+            _, num_choices, _ = features['input_ids'].shape
+            embeddings = (
+                embeddings.to(device).repeat_interleave(num_choices, dim=0)
+                if augmentation_type in ['atomic_vector']
+                else None
+            )
 
             # convert the input_ids into the masked LM features and labels
             #   clone the input_ids into labels before modifying them
@@ -389,20 +387,18 @@ def pre_train(
                 total=n_dev_batches_per_epoch,
                 **settings.TQDM_KWARGS,
             ):
-                if augmentation_type not in ['atomic_vector']:
-                    embeddings = None
-
-                embeddings = (
-                    embeddings.to(device)
-                    if embeddings is not None
-                    else None
-                )
-
                 # move the data onto the device
                 input_ids = features['input_ids']
                 input_ids = input_ids.view(-1, input_ids.shape[-1]).to(device)
                 attention_mask = features['attention_mask']
                 attention_mask = attention_mask.view(-1, attention_mask.shape[-1]).to(device)
+
+                _, num_choices, _ = features['input_ids'].shape
+                embeddings = (
+                    embeddings.to(device).repeat_interleave(num_choices, dim=0)
+                    if augmentation_type in ['atomic_vector']
+                    else None
+                )
 
                 # convert the input_ids into the masked LM features
                 #   clone the input_ids into labels before modifying them
