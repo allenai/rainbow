@@ -608,6 +608,10 @@ class BertModel(BertPreTrainedModel):
         self.encoder = BertEncoder(config)
         self.pooler = BertPooler(config)
 
+        self.embedding_translation = nn.Linear(
+            in_features=768, out_features=config.hidden_size, bias=True
+        )
+
         self.init_weights()
 
     def _resize_token_embeddings(self, new_num_tokens):
@@ -734,8 +738,9 @@ class BertModel(BertPreTrainedModel):
             input_ids, position_ids=position_ids, token_type_ids=token_type_ids
         )
         if embeddings is not None:
-            embedding_output[:, :n_embeddings, :] = 0
-            embedding_output[:, :n_embeddings, :embedding_dim] = embeddings
+            embedding_output[:, :n_embeddings, :] = self.embedding_translation(
+                embeddings
+            )
         encoder_outputs = self.encoder(
             embedding_output, extended_attention_mask, head_mask=head_mask
         )
