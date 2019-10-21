@@ -14,24 +14,6 @@ from .features import TextFeature
 from .instances import MultipleChoiceInstance
 
 
-AUGMENTATION_TYPES = ["original", "atomic_text", "atomic_vector"]
-"""The types of feature augmentation available."""
-
-
-ATOMIC_RELATIONS = [
-    "o_effect",
-    "o_react",
-    "o_want",
-    "x_attr",
-    "x_effect",
-    "x_intent",
-    "x_need",
-    "x_react",
-    "x_want",
-]
-"""The ATOMIC relations."""
-
-
 class MultipleChoiceDataset(Dataset):
     """A base class for multiple choice datasets."""
 
@@ -70,7 +52,7 @@ class MultipleChoiceDataset(Dataset):
                 f" {', '.join(self.splits)}."
             )
 
-        if augmentation_type not in AUGMENTATION_TYPES:
+        if augmentation_type not in settings.AUGMENTATION_TYPES:
             raise ValueError(
                 f"Unrecognized augmentation_type ({augmentation_type})."
             )
@@ -207,7 +189,7 @@ class SocialIQADataset(MultipleChoiceDataset):
                     )
                     embedding = tuple(
                         row["features"]["context"][f"{relation}_embeddings"]
-                        for relation in ATOMIC_RELATIONS
+                        for relation in settings.ATOMIC_RELATIONS
                     )
 
                 ids.append(f"id{i}")
