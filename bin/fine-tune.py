@@ -66,7 +66,7 @@ logger = logging.getLogger(__name__)
          ' for more information on the optimization levels.')
 @click.option(
     '--augmentation-type',
-    type=click.Choice(datasets.AUGMENTATION_TYPES),
+    type=click.Choice(settings.AUGMENTATION_TYPES),
     default='original',
     help='The type of augmentation to use on the dataset. Defaults to'
          ' "original".')
