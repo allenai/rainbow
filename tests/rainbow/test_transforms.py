@@ -118,53 +118,6 @@ class ComposeTestCase(unittest.TestCase):
         self.assertEqual(transform("A", None), ("ab", None))
 
 
-class DistributeContextTransformTestCase(unittest.TestCase):
-    """Test rainbow.transforms.DistributeContextTransform."""
-
-    def test_fit(self):
-        transform = transforms.DistributeContextTransform()
-        transform.fit([], [])
-
-    def test___call__(self):
-        transform = transforms.DistributeContextTransform()
-
-        # test __call__ throws an error if transform hasn't been fitted
-        with self.assertRaises(ValueError):
-            transform(["a"], True)
-
-        transform.fit([], [])
-
-        self.assertEqual(
-            transform(("The question", ("A", "B", "C")), True),
-            (
-                [
-                    ["The question", "A"],
-                    ["The question", "B"],
-                    ["The question", "C"],
-                ],
-                True,
-            ),
-        )
-        self.assertEqual(
-            transform(
-                (
-                    "Some context about the question",
-                    "The question",
-                    ("A", "B", "C"),
-                ),
-                False,
-            ),
-            (
-                [
-                    ["Some context about the question", "The question", "A"],
-                    ["Some context about the question", "The question", "B"],
-                    ["Some context about the question", "The question", "C"],
-                ],
-                False,
-            ),
-        )
-
-
 class LinearizeTransformTestCase(unittest.TestCase):
     """Test rainbow.transforms.LinearizeTransform."""
 

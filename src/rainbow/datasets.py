@@ -166,31 +166,43 @@ class SocialIQADataset(MultipleChoiceDataset):
                 )
 
                 if self.augmentation_type == "original":
-                    feature = (
-                        row["features"]["context"]["text"],
-                        row["features"]["question"]["text"],
-                        [answer["text"] for answer in row["answers"]],
-                    )
-                    embedding = ()
+                    feature = [
+                        [
+                            row["features"]["context"]["text"],
+                            row["features"]["question"]["text"],
+                            answer["text"],
+                        ]
+                        for answer in row["answers"]
+                    ]
+                    embedding = []
                 elif self.augmentation_type == "atomic_text":
-                    feature = (
-                        row["features"]["context"]["text"],
-                        row["features"]["context"][relations[0]],
-                        row["features"]["context"][relations[1]],
-                        row["features"]["question"]["text"],
-                        [answer["text"] for answer in row["answers"]],
-                    )
-                    embedding = ()
+                    feature = [
+                        [
+                            row["features"]["context"]["text"],
+                            row["features"]["context"][relations[0]],
+                            row["features"]["context"][relations[1]],
+                            row["features"]["question"]["text"],
+                            answer["text"],
+                        ]
+                        for answer in row["answers"]
+                    ]
+                    embedding = []
                 elif self.augmentation_type == "atomic_vector":
-                    feature = (
-                        row["features"]["context"]["text"],
-                        row["features"]["question"]["text"],
-                        [answer["text"] for answer in row["answers"]],
-                    )
-                    embedding = tuple(
-                        row["features"]["context"][f"{relation}_embeddings"]
-                        for relation in settings.ATOMIC_RELATIONS
-                    )
+                    feature = [
+                        [
+                            row["features"]["context"]["text"],
+                            row["features"]["question"]["text"],
+                            answer["text"],
+                        ]
+                        for answer in row["answers"]
+                    ]
+                    embedding = [
+                        [
+                            row["features"]["context"][f"{relation}_embeddings"]
+                            for relation in settings.ATOMIC_RELATIONS
+                        ]
+                        for answer in row["answers"]
+                    ]
 
                 ids.append(f"id{i}")
                 features.append(feature)
