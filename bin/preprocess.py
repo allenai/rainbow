@@ -107,6 +107,17 @@ def preprocess(
                 batch_size=batch_size)
             for feature_name in feature_names
         }
+        atomic_answer_features = [
+            comet.augment_with_atomic_comet(
+                features=[
+                    instance.answers[i]
+                    for instance in instances
+                ],
+                model_path=atomic_comet_model_path,
+                vocab_path=atomic_comet_vocab_path,
+                batch_size=batch_size)
+            for i in range(dataset_class.num_choices)
+        ]
 
         # write the features to disk
         atomic_augmented_path = os.path.join(
@@ -121,7 +132,11 @@ def preprocess(
                     features={
                         feature_name: atomic_features[feature_name][i]
                         for feature_name in feature_names
-                    })
+                    },
+                    answers=[
+                        atomic_answer_features[j][i]
+                        for j in range(dataset_class.num_choices)
+                    ])
                 atomic_augmented_file.write(msgpack.packb(
                     attr.asdict(instance),
                     use_bin_type=True))
@@ -142,6 +157,17 @@ def preprocess(
                 batch_size=batch_size)
             for feature_name in feature_names
         }
+        conceptnet_answer_features = [
+            comet.augment_with_conceptnet_comet(
+                features=[
+                    instance.answers[i]
+                    for instance in instances
+                ],
+                model_path=conceptnet_comet_model_path,
+                vocab_path=conceptnet_comet_vocab_path,
+                batch_size=batch_size)
+            for i in range(dataset_class.num_choices)
+        ]
 
         # write the features to disk
         conceptnet_augmented_path = os.path.join(
@@ -156,7 +182,11 @@ def preprocess(
                     features={
                         feature_name: conceptnet_features[feature_name][i]
                         for feature_name in feature_names
-                    })
+                    },
+                    answers=[
+                        conceptnet_answer_features[j][i]
+                        for j in range(dataset_class.num_choices)
+                    ])
                 conceptnet_augmented_file.write(msgpack.packb(
                     attr.asdict(instance),
                     use_bin_type=True))

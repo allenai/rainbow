@@ -26,6 +26,7 @@ class MultipleChoiceDataset(Dataset):
     name = None
     metric = None
     splits = None
+    num_choices = None
 
     @classmethod
     def read_raw_instances(
@@ -112,6 +113,7 @@ class SocialIQADataset(MultipleChoiceDataset):
     name = "socialiqa"
     splits = ["train", "dev"]
     metric = metrics.accuracy_score
+    num_choices = 3
 
     @classmethod
     def _question_to_relations(cls, question) -> str:
@@ -242,6 +244,7 @@ class WinoGrandeDataset(MultipleChoiceDataset):
     name = "winogrande"
     splits = ["train", "dev"]
     metric = metrics.accuracy_score
+    num_choices = 2
 
     @classmethod
     def read_raw_instances(
@@ -285,7 +288,7 @@ class WinoGrandeDataset(MultipleChoiceDataset):
                             row["features"]["sentence"]["text"].replace(
                                 "_", "<mask>"
                             ),
-                            answer["text"]
+                            answer["text"],
                         ]
                         for answer in row["answers"]
                     ]
