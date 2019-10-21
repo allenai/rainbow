@@ -212,4 +212,126 @@ class SocialIQADataset(MultipleChoiceDataset):
         return ids, features, embeddings, labels
 
 
-DATASETS = {SocialIQADataset.name: SocialIQADataset}
+class WinoGrandeDataset(MultipleChoiceDataset):
+    """The WinoGrande dataset."""
+
+    _file_names = {
+        "train": {
+            "features": "winogrande_1.1/train.jsonl",
+            "labels": "winogrande_1.1/train-labels.lst",
+        },
+        "dev": {
+            "features": "winogrande_1.1/dev.jsonl",
+            "labels": "winogrande_1.1/dev-labels.lst",
+        },
+    }
+
+    _text_relations = [
+        "at_location",
+        "capable_of",
+        "causes",
+        "has_a",
+        "has_property",
+        "is_a",
+        "made_of",
+        "part_of",
+        "symbol_of",
+        "used_for",
+    ]
+
+    name = "winogrande"
+    splits = ["train", "dev"]
+    metric = metrics.accuracy_score
+
+    @classmethod
+    def read_raw_instances(
+        cls, dataset_path, split
+    ) -> List[MultipleChoiceInstance]:
+        with ZipFile(dataset_path) as dataset_zip:
+            features_path = cls._file_names[split]["features"]
+            with dataset_zip.open(features_path, "r") as features_file:
+                features = [json.loads(ln) for ln in features_file]
+
+            labels_path = cls._file_names[split]["labels"]
+            with dataset_zip.open(labels_path, "r") as labels_file:
+                labels = [ln.decode().strip() for ln in labels_file]
+
+        return [
+            MultipleChoiceInstance(
+                features={"sentence": TextFeature(text=feature["sentence"])},
+                answers=[
+                    TextFeature(text=feature["option1"]),
+                    TextFeature(text=feature["option2"]),
+                ],
+                label=int(label) - 1,
+            )
+            for feature, label in zip(features, labels)
+        ]
+
+    def _read_data(self):
+        ids, features, embeddings, labels = [], [], [], []
+
+        split_path = os.path.join(
+            self.data_dir,
+            self.preprocessed_path_templates["conceptnet"].format(
+                split=self.split, name=self.name
+            ),
+        )
+        with open(split_path, "rb") as split_file:
+            for i, row in enumerate(msgpack.Unpacker(split_file, raw=False)):
+                if self.augmentation_type == "original":
+                    feature = [
+                        [
+                            row["features"]["sentence"]["text"].replace(
+                                "_", "<mask>"
+                            ),
+                            answer["text"]
+                        ]
+                        for answer in row["answers"]
+                    ]
+                    embedding = []
+                elif self.augmentation_type == "conceptnet_text":
+                    feature = []
+                    for answer in range(2):
+                        answer_feature = [
+                            row["features"]["sentence"]["text"].replace(
+                                "_", "<mask>"
+                            ),
+                            row["features"]["answers"][answer]["text"],
+                        ]
+                        for relation in self._text_relations:
+                            answer_feature.append(
+                                row["feature"]["answers"][answer][relation]
+                            )
+                        feature.append(answer_feature)
+                    embedding = []
+                elif self.augmentation_type == "conceptnet_vector":
+                    feature = [
+                        [
+                            answer["text"],
+                            row["features"]["sentence"]["text"].replace(
+                                "_", "<mask>"
+                            ),
+                        ]
+                        for answer in row["answers"]
+                    ]
+                    embedding = [
+                        [
+                            answer[f"{relation}_embeddings"]
+                            for relation in settings.CONCEPTNET_RELATIONS
+                        ]
+                        for answer in row["answers"]
+                    ]
+
+                ids.append(f"id{i}")
+                features.append(feature)
+                embeddings.append(embedding)
+                labels.append(row["label"])
+
+        return ids, features, embeddings, labels
+
+
+DATASETS = {
+    SocialIQADataset.name: SocialIQADataset,
+    WinoGrandeDataset.name: WinoGrandeDataset,
+}
