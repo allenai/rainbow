@@ -82,7 +82,9 @@ def preprocess(
 
         unaugmented_path = os.path.join(
             output_dir,
-            dataset_class.preprocessed_path_templates['original'].format(split=split))
+            dataset_class.preprocessed_path_templates['original'].format(
+                split=split,
+                name=dataset_class.name))
         with open(unaugmented_path, 'wb') as unaugmented_file:
             for i, instance in enumerate(instances):
                 unaugmented_file.write(msgpack.packb(
@@ -109,7 +111,9 @@ def preprocess(
         # write the features to disk
         atomic_augmented_path = os.path.join(
             output_dir,
-            dataset_class.preprocessed_path_templates['atomic'].format(split=split))
+            dataset_class.preprocessed_path_templates['atomic'].format(
+                split=split,
+                name=dataset_class.name))
         with open(atomic_augmented_path, 'wb') as atomic_augmented_file:
             for i, instance in enumerate(instances):
                 instance = attr.evolve(
@@ -142,7 +146,9 @@ def preprocess(
         # write the features to disk
         conceptnet_augmented_path = os.path.join(
             output_dir,
-            dataset_class.preprocessed_path_templates['conceptnet'].format(split=split))
+            dataset_class.preprocessed_path_templates['conceptnet'].format(
+                split=split,
+                name=dataset_class.name))
         with open(conceptnet_augmented_path, 'wb') as conceptnet_augmented_file:
             for i, instance in enumerate(instances):
                 instance = attr.evolve(
