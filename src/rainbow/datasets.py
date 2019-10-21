@@ -32,7 +32,78 @@ ATOMIC_RELATIONS = [
 """The ATOMIC relations."""
 
 
-class SocialIQADataset(Dataset):
+class MultipleChoiceDataset(Dataset):
+    """A base class for multiple choice datasets."""
+
+    preprocessed_path_templates = {
+        "atomic": "{split}.atomic-{name}.msg",
+        "conceptnet": "{split}.conceptnet-{name}.msg",
+        "original": "{split}.original-{name}.msg",
+    }
+
+    name = None
+    metric = None
+    splits = None
+
+    @classmethod
+    def read_raw_instances(
+        cls, dataset_path, split
+    ) -> List[MultipleChoiceInstance]:
+        raise NotImplementedError
+
+    def _read_data(self):
+        raise NotImplementedError
+
+    def __init__(
+        self,
+        data_dir: str,
+        split: str,
+        transform: Optional[Callable] = None,
+        transform_embedding: Optional[Callable] = None,
+        augmentation_type: str = "original",
+    ) -> None:
+        super().__init__()
+
+        if split not in self.splits:
+            raise ValueError(
+                f"Unrecognized value for split, split must be one of"
+                f" {', '.join(self.splits)}."
+            )
+
+        if augmentation_type not in AUGMENTATION_TYPES:
+            raise ValueError(
+                f"Unrecognized augmentation_type ({augmentation_type})."
+            )
+
+        self.data_dir = data_dir
+        self.split = split
+        self.transform = transform
+        self.transform_embedding = transform_embedding
+        self.augmentation_type = augmentation_type
+
+        self.ids, self.features, self.embeddings, self.labels = (
+            self._read_data()
+        )
+
+    def __len__(self) -> int:
+        return len(self.ids)
+
+    def __getitem__(self, key: int) -> Tuple[str, Any, Any]:
+        id_ = self.ids[key]
+        feature = self.features[key]
+        embedding = self.embeddings[key]
+        label = self.labels[key]
+
+        if self.transform:
+            feature, label = self.transform(feature, label)
+
+        if self.transform_embedding:
+            embedding = self.transform_embedding(embedding)
+
+        return id_, feature, embedding, label
+
+
+class SocialIQADataset(MultipleChoiceDataset):
     """The SocialIQA dataset."""
 
     _file_names = {
@@ -56,12 +127,8 @@ class SocialIQADataset(Dataset):
         ("What will", "want to do next?", ["x_want", "o_want"]),
     ]
 
-    preprocessed_path_templates = {
-        "atomic": "{split}.atomic-socialiqa.msg",
-        "conceptnet": "{split}.conceptnet-socialiqa.msg",
-        "original": "{split}.original-socialiqa.msg",
-    }
-
+    name = "socialiqa"
+    splits = ["train", "dev"]
     metric = metrics.accuracy_score
 
     @classmethod
@@ -106,7 +173,9 @@ class SocialIQADataset(Dataset):
 
         split_path = os.path.join(
             self.data_dir,
-            self.preprocessed_path_templates["atomic"].format(split=self.split),
+            self.preprocessed_path_templates["atomic"].format(
+                split=self.split, name=self.name
+            ),
         )
         with open(split_path, "rb") as split_file:
             for i, row in enumerate(msgpack.Unpacker(split_file, raw=False)):
@@ -148,54 +217,5 @@ class SocialIQADataset(Dataset):
 
         return ids, features, embeddings, labels
 
-    def __init__(
-        self,
-        data_dir: str,
-        split: str,
-        transform: Optional[Callable] = None,
-        transform_embedding: Optional[Callable] = None,
-        augmentation_type: str = "original",
-    ) -> None:
-        super().__init__()
 
-        splits = self._file_names.keys()
-        if split not in splits:
-            raise ValueError(
-                f"Unrecognized value for split, split must be one of"
-                f" {', '.join(splits)}."
-            )
-
-        if augmentation_type not in AUGMENTATION_TYPES:
-            raise ValueError(
-                f"Unrecognized augmentation_type ({augmentation_type})."
-            )
-
-        self.data_dir = data_dir
-        self.split = split
-        self.transform = transform
-        self.transform_embedding = transform_embedding
-        self.augmentation_type = augmentation_type
-
-        self.ids, self.features, self.embeddings, self.labels = (
-            self._read_data()
-        )
-
-    def __len__(self) -> int:
-        return len(self.ids)
-
-    def __getitem__(self, key: int) -> Tuple[str, Any, Any]:
-        id_ = self.ids[key]
-        feature = self.features[key]
-        embedding = self.embeddings[key]
-        label = self.labels[key]
-
-        if self.transform:
-            feature, label = self.transform(feature, label)
-
-        if self.transform_embedding:
-            embedding = self.transform_embedding(embedding)
-
-        return id_, feature, embedding, label
-
-
-DATASETS = {"socialiqa": SocialIQADataset}
+DATASETS = {SocialIQADataset.name: SocialIQADataset}
