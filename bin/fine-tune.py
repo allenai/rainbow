@@ -156,7 +156,6 @@ def fine_tune(
     # create the train and dev datasets
     dataset_class = datasets.DATASETS[dataset]
     transform = transforms.Compose([
-        transforms.DistributeContextTransform(),
         transforms.Map(
             transform=transforms.LinearizeTransform(
                 tokenizer=transformers.RobertaTokenizer.from_pretrained(
@@ -278,7 +277,7 @@ def fine_tune(
             features = {k: v.to(device) for k, v in features.items()}
             embeddings = (
                 embeddings.to(device)
-                if augmentation_type in ['atomic_vector']
+                if augmentation_type in ['atomic_vector', 'conceptnet_vector']
                 else None
             )
             labels = labels.to(device)
@@ -342,7 +341,7 @@ def fine_tune(
                 features = {k: v.to(device) for k, v in features.items()}
                 embeddings = (
                     embeddings.to(device)
-                    if augmentation_type in ['atomic_vector']
+                    if augmentation_type in ['atomic_vector', 'conceptnet_vector']
                     else None
                 )
                 labels = labels.to(device)

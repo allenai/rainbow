@@ -93,41 +93,6 @@ class Compose(object):
         return x, y
 
 
-class DistributeContextTransform:
-    """Distribute multiple choice context across the answer choices.
-
-    Given a sequence where the last element is a list of choices, create
-    a new sequence of sequences where the initial elements are matched
-    with each of the choices separately:
-
-        >>> transform = DistributeContextTransform()
-        >>> transform(('A question', ('A', 'B', 'C')), True)
-        (
-            [['A question', 'A'], ['A question', 'B'], ['A question', 'C']],
-            True
-        )
-
-    """
-
-    def __init__(self) -> None:
-        self._fitted = False
-
-    def fit(self, xs: Sequence[Sequence[Any]], ys: Sequence[Any]) -> None:
-        self._fitted = True
-
-    def __call__(
-        self, x: Sequence[Any], y: Any
-    ) -> Tuple[Sequence[Sequence[Any]], Any]:
-        if not self._fitted:
-            raise ValueError(
-                "The transform must be fitted before it can be called."
-            )
-
-        x = list(x)
-
-        return [x[:-1] + [choice] for choice in x[-1]], y
-
-
 class LinearizeTransform(object):
     """Transform a tuple of text into input for RoBERTa.
 

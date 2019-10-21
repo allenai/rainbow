@@ -157,7 +157,6 @@ def pre_train(
     tokenizer = transformers.RobertaTokenizer.from_pretrained('roberta-large')
     dataset_class = datasets.DATASETS[dataset]
     transform = transforms.Compose([
-        transforms.DistributeContextTransform(),
         transforms.Map(
             transform=transforms.LinearizeTransform(
                 tokenizer=tokenizer,
@@ -280,11 +279,9 @@ def pre_train(
             attention_mask = features['attention_mask']
             attention_mask = attention_mask.view(
                 -1, attention_mask.shape[-1]).to(device)
-
-            _, num_choices, _ = features['input_ids'].shape
             embeddings = (
-                embeddings.to(device).repeat_interleave(num_choices, dim=0)
-                if augmentation_type in ['atomic_vector']
+                embeddings.view(-1, *embeddings.shape[-2:]).to(device)
+                if augmentation_type in ['atomic_vector', 'conceptnet_vector']
                 else None
             )
 
@@ -393,10 +390,9 @@ def pre_train(
                 attention_mask = features['attention_mask']
                 attention_mask = attention_mask.view(-1, attention_mask.shape[-1]).to(device)
 
-                _, num_choices, _ = features['input_ids'].shape
                 embeddings = (
-                    embeddings.to(device).repeat_interleave(num_choices, dim=0)
-                    if augmentation_type in ['atomic_vector']
+                    embeddings.view(-1, *embeddings.shape[-2:]).to(device)
+                    if augmentation_type in ['atomic_vector', 'conceptnet_vector']
                     else None
                 )
 

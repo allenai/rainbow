@@ -461,10 +461,11 @@ class RobertaForMultipleChoice(BertPreTrainedModel):
             else None
         )
         flat_embeddings = (
-            embeddings.repeat_interleave(num_choices, dim=0)
+            embeddings.view(-1, *embeddings.shape[-2:])
             if embeddings is not None
             else None
         )
+
         outputs = self.roberta(
             flat_input_ids,
             position_ids=flat_position_ids,
