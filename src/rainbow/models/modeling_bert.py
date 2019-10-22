@@ -640,20 +640,6 @@ class BertModel(BertPreTrainedModel):
         embeddings=None,
     ):
         if embeddings is not None:
-            batch_size, n_embeddings, embedding_dim = embeddings.shape
-
-            # modify the input ids
-            input_ids = torch.cat(  # pylint: disable=no-member
-                [
-                    torch.zeros(  # pylint: disable=no-member
-                        (batch_size, n_embeddings),
-                        dtype=torch.long,  # pylint: disable=no-member
-                        device=input_ids.device,
-                    ),
-                    input_ids,
-                ],
-                dim=-1,
-            )
             # check that the position ids are None
             if position_ids is not None:
                 raise ValueError(
@@ -669,6 +655,21 @@ class BertModel(BertPreTrainedModel):
                 raise ValueError(
                     "head_mask must be None when embeddings is not None."
                 )
+
+            batch_size, n_embeddings, embedding_dim = embeddings.shape
+
+            # modify the input ids
+            input_ids = torch.cat(  # pylint: disable=no-member
+                [
+                    torch.zeros(  # pylint: disable=no-member
+                        (batch_size, n_embeddings),
+                        dtype=torch.long,  # pylint: disable=no-member
+                        device=input_ids.device,
+                    ),
+                    input_ids,
+                ],
+                dim=-1,
+            )
             # modify the attention mask
             attention_mask = torch.cat(  # pylint: disable=no-member
                 [
