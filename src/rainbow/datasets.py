@@ -228,6 +228,72 @@ class WinoGrandeDataset(MultipleChoiceDataset):
         },
     }
 
+    _name_options = {
+        "Aaron",
+        "Adam",
+        "Amy",
+        "Angela",
+        "Benjamin",
+        "Betty",
+        "Brett",
+        "Brian",
+        "Carrie",
+        "Christine",
+        "Christopher",
+        "Craig",
+        "Cynthia",
+        "Dennis",
+        "Derrick",
+        "Donald",
+        "Elena",
+        "Emily",
+        "Eric",
+        "Erin",
+        "Felicia",
+        "Hunter",
+        "Ian",
+        "Jason",
+        "Jeffrey",
+        "Jennifer",
+        "Jessica",
+        "Joel",
+        "Joseph",
+        "Justin",
+        "Katrina",
+        "Kayla",
+        "Kenneth",
+        "Kevin",
+        "Kyle",
+        "Laura",
+        "Lawrence",
+        "Leslie",
+        "Lindsey",
+        "Logan",
+        "Maria",
+        "Mary",
+        "Matthew",
+        "Megan",
+        "Michael",
+        "Monica",
+        "Natalie",
+        "Neil",
+        "Nelson",
+        "Nick",
+        "Patricia",
+        "Rachel",
+        "Randy",
+        "Rebecca",
+        "Robert",
+        "Ryan",
+        "Samantha",
+        "Samuel",
+        "Sarah",
+        "Steven",
+        "Tanya",
+        "Victoria",
+        "William",
+    }
+
     _text_relations = [
         "at_location",
         "capable_of",
@@ -282,6 +348,13 @@ class WinoGrandeDataset(MultipleChoiceDataset):
         )
         with open(split_path, "rb") as split_file:
             for i, row in enumerate(msgpack.Unpacker(split_file, raw=False)):
+                if (
+                        row['answers'][0]['text'] in self._name_options
+                        or row['answers'][1]['text'] in self._name_options
+                ):
+                    # N.B. only include the physical portion of WinoGrande
+                    continue
+
                 if self.augmentation_type == "original":
                     feature = [
                         [
