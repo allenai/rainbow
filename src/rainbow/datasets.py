@@ -349,8 +349,8 @@ class WinoGrandeDataset(MultipleChoiceDataset):
         with open(split_path, "rb") as split_file:
             for i, row in enumerate(msgpack.Unpacker(split_file, raw=False)):
                 if (
-                        row['answers'][0]['text'] in self._name_options
-                        or row['answers'][1]['text'] in self._name_options
+                    row["answers"][0]["text"] in self._name_options
+                    or row["answers"][1]["text"] in self._name_options
                 ):
                     # N.B. only include the physical portion of WinoGrande
                     continue
@@ -373,11 +373,11 @@ class WinoGrandeDataset(MultipleChoiceDataset):
                             row["features"]["sentence"]["text"].replace(
                                 "_", "<mask>"
                             ),
-                            row["features"]["answers"][answer]["text"],
+                            row["answers"][answer]["text"],
                         ]
                         for relation in self._text_relations:
                             answer_feature.append(
-                                row["feature"]["answers"][answer][relation]
+                                row["answers"][answer][relation]
                             )
                         feature.append(answer_feature)
                     embedding = []
