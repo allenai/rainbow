@@ -69,7 +69,4 @@ wget \
 
 # WinoGrande
 
-mkdir --parents "$OUTPUT_DIR/winogrande/"
-wget \
-    --output-document "$OUTPUT_DIR/winogrande/winogrande_1.1.zip" \
-    https://storage.googleapis.com/ai2-mosaic/public/winogrande/winogrande_1.1.zip
+echo "TODO: WinoGrande is currently unavailable."
