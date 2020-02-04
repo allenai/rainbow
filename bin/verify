@@ -4,8 +4,8 @@
 #
 # This script:
 #
-#   1. Runs black to check the code formatting in all packages.
-#   2. Runs pylint to check for errors in the code in all packages.
+#   1. Runs black to check the code formatting in all scripts and packages.
+#   2. Runs pylint to check for errors in the code in all scripts and packages.
 #   3. Runs tests with pytest.
 #
 # If any check fails, the script exits immediately with a non-zero
@@ -14,27 +14,27 @@
 set -e
 
 
-# Fetch the root and package directories.
+# Fetch the root and construct the list of targets.
 
 ROOT=$(git rev-parse --show-toplevel)
 
-PACKAGES="$ROOT/src/rainbow $ROOT/tests"
+TARGETS="$($ROOT/bin/targets)"
 
 
 # Run code quality checks.
 
-for PACKAGE in $PACKAGES
+for TARGET in $TARGETS
 do
-    echo "Analyzing $PACKAGE."
+    echo "Analyzing $TARGET."
     # check the formatting
     black \
         --line-length 80 \
         --target-version py36 \
         --safe \
         --check \
-        $PACKAGE
+        $TARGET
     # run pylint
-    pylint --errors-only $PACKAGE
+    pylint --errors-only $TARGET
 done
 
 # Run tests.

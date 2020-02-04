@@ -7,21 +7,21 @@
 set -e
 
 
-# Fetch the root and package directories.
+# Fetch the root and construct the list of targets.
 
 ROOT=$(git rev-parse --show-toplevel)
 
-PACKAGES="$ROOT/src/rainbow $ROOT/tests"
+TARGETS="$($ROOT/bin/targets)"
 
 
 # Run the formatter.
 
-for PACKAGE in $PACKAGES
+for TARGET in $TARGETS
 do
-    echo "Formatting $PACKAGE"
+    echo "Formatting $TARGET"
     black \
         --line-length 80 \
         --target-version py36 \
         --safe \
-        $PACKAGE
+        $TARGET
 done

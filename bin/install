@@ -4,7 +4,7 @@
 #
 # This script:
 #
-#   1. Upgrades pip.
+#   1. Upgrades pip and setuptools.
 #   2. Installs package requirements.
 #   3. Installs development requirements.
 #   4. Installs the package.
@@ -20,8 +20,8 @@ ROOT=$(git rev-parse --show-toplevel)
 
 # Setup the repository.
 
-# upgrade pip
-pip install --upgrade pip
+# upgrade pip and setuptools.
+pip install --upgrade pip setuptools
 
 # install requirements
 pip install --requirement "$ROOT/requirements.txt"

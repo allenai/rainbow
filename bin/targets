@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+
+# Print all continuous integration targets in the repo.
+
+set -e
+
+
+# Fetch the root.
+
+ROOT=$(git rev-parse --show-toplevel)
+
+# Create the list of targets.
+
+TARGETS=$(cat \
+<(shopt -s nullglob; for path in $ROOT/bin/*.py; do echo $path; done) - <<EOF
+$ROOT/src/rainbow
+$ROOT/tests
+EOF
+)
+
+# Print the targets.
+
+echo "${TARGETS}"
