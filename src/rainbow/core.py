@@ -6,6 +6,44 @@ import t5
 import tensorflow as tf
 
 
+# mixing rate functions
+
+
+def proportional_rate(task):
+    """Mix the datasets proportionally.
+
+    Parameters
+    ----------
+    task : t5.data.Task
+        The task.
+
+    Returns
+    -------
+    float
+        The number of examples in the task's training set.
+    """
+    return float(task.num_input_examples("train"))
+
+
+def equal_rate(task):
+    """Mix the datasets in equal amounts.
+
+    Parameters
+    ----------
+    task : t5.data.Task
+        The task.
+
+    Returns
+    -------
+    float
+        The constant: ``1.0``.
+    """
+    return 1.0
+
+
+# task classes
+
+
 class CsvTask(t5.data.Task):
     """A ``Task`` for CSV formatted datasets.
 

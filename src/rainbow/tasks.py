@@ -13,7 +13,7 @@ from . import core, datasets, preprocessors, settings
 _anli = datasets.RAINBOW_DATASETS["anli"]
 
 t5.data.TaskRegistry.add(
-    name="anli",
+    name="anli_task",
     task_cls=core.CsvTask,
     # args for CsvTask
     #   dataset configuration and location
@@ -57,7 +57,7 @@ t5.data.TaskRegistry.add(
 _cosmosqa = datasets.RAINBOW_DATASETS["cosmosqa"]
 
 t5.data.TaskRegistry.add(
-    name="cosmosqa",
+    name="cosmosqa_task",
     task_cls=core.CsvTask,
     # args for CsvTask
     #   dataset configuration and location
@@ -101,7 +101,7 @@ t5.data.TaskRegistry.add(
 _hellaswag = datasets.RAINBOW_DATASETS["hellaswag"]
 
 t5.data.TaskRegistry.add(
-    name="hellaswag",
+    name="hellaswag_task",
     task_cls=core.CsvTask,
     # args for CsvTask
     #   dataset configuration and location
@@ -145,7 +145,7 @@ t5.data.TaskRegistry.add(
 _physicaliqa = datasets.RAINBOW_DATASETS["physicaliqa"]
 
 t5.data.TaskRegistry.add(
-    name="physicaliqa",
+    name="physicaliqa_task",
     task_cls=core.CsvTask,
     # args for CsvTask
     #   dataset configuration and location
@@ -189,7 +189,7 @@ t5.data.TaskRegistry.add(
 _socialiqa = datasets.RAINBOW_DATASETS["socialiqa"]
 
 t5.data.TaskRegistry.add(
-    name="socialiqa",
+    name="socialiqa_task",
     task_cls=core.CsvTask,
     # args for CsvTask
     #   dataset configuration and location
@@ -233,7 +233,7 @@ t5.data.TaskRegistry.add(
 _winogrande = datasets.RAINBOW_DATASETS["winogrande"]
 
 t5.data.TaskRegistry.add(
-    name="winogrande",
+    name="winogrande_task",
     task_cls=core.CsvTask,
     # args for CsvTask
     #   dataset configuration and location
