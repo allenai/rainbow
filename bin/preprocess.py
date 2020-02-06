@@ -122,11 +122,31 @@ def preprocess(src: str, dst: str, force_download: bool) -> None:
                             label = ln2.decode().strip()
 
                             # Create the inputs and targets.
+                            feature_strings = []
+                            for feature_name in dataset.feature_names:
+                                if isinstance(feature[feature_name], str):
+                                    feature_strings.append(
+                                        f"<{feature_name}>"
+                                        f"{feature[feature_name]}"
+                                        f"</{feature_name}>"
+                                    )
+                                elif isinstance(feature[feature_name], list):
+                                    for option_idx, option_text in enumerate(
+                                        feature[feature_name]
+                                    ):
+                                        feature_strings.append(
+                                            f"<{feature_name} {option_idx}>"
+                                            f"{option_text}"
+                                            f"</{feature_name} {option_idx}>"
+                                        )
+                                else:
+                                    raise ValueError(
+                                        f"Unable to process feature of type"
+                                        f" {feature[feature_name].__class__.__name__}."
+                                    )
+
                             inputs = f"[{dataset.name}]:\n" + "\n".join(
-                                f"<{feature_name}>"
-                                f"{feature[feature_name]}"
-                                f"</{feature_name}>"
-                                for feature_name in dataset.feature_names
+                                feature_strings
                             )
                             targets = label
 
