@@ -39,7 +39,7 @@ PRETRAINED_MODELS = {
     "--n-steps",
     type=int,
     default=25000,
-    help="The number of gradient updates. Defaults to 25,000",
+    help="The number of gradient updates. Defaults to 25,000.",
 )
 @click.option(
     "--batch-size",

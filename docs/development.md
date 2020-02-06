@@ -54,6 +54,58 @@ Finally, verify your installation:
     ./bin/verify
 
 
+Fine-tuning and Evaluation
+--------------------------
+To fine-tune the model, use [`bin/fine-tune.py`][bin/fine-tune.py]:
+
+    $ ./bin/fine-tune.py --help
+    Usage: fine-tune.py [OPTIONS] MIXTURE RESULTS_DIR
+
+      Fine-tune the model on MIXTURE, writing results to RESULTS_DIR.
+
+    Options:
+      --pretrained-model TEXT         The path to or name of the pretrained model.
+                                      Defaults to 3B.
+      --n-steps INTEGER               The number of gradient updates. Defaults to
+                                      25,000.
+      --batch-size INTEGER            The batch size to use for training. For
+                                      efficient training on the TPU, choose a
+                                      multiple of either 8 or 128. Defaults to 16.
+      --model-parallelism INTEGER     The degree of model parallelism to use.
+                                      Defaults to 8.
+      --n-checkpoints-to-keep INTEGER
+                                      The number of checkpoints to keep during
+                                      fine-tuning. Defaults to 4.
+      --tpu-name TEXT                 The name of the TPU. Defaults to the
+                                      TPU_NAME environment variable.  [required]
+      --tpu-topology TEXT             The topology of the TPU. Defaults to the
+                                      TPU_TOPOLOGY environment variable.
+                                      [required]
+      --help                          Show this message and exit.
+
+To evaluate the model, use [`bin/evaluate.py`][bin/evaluate.py]:
+
+    $ ./bin/evaluate.py --help
+    Usage: evaluate.py [OPTIONS] MIXTURE RESULTS_DIR
+
+      Evaluate the model located at RESULTS_DIR on MIXTURE.
+
+    Options:
+      --batch-size INTEGER         The batch size to use for prediction. For
+                                   efficient prediction on the TPU, choose a
+                                   multiple of either 8 or 128. Defaults to 64.
+      --model-parallelism INTEGER  The degree of model parallelism to use.
+                                   Defaults to 8.
+      --tpu-name TEXT              The name of the TPU. Defaults to the TPU_NAME
+                                   environment variable.  [required]
+      --tpu-topology TEXT          The topology of the TPU. Defaults to the
+                                   TPU_TOPOLOGY environment variable.  [required]
+      --help                       Show this message and exit.
+
+[bin/fine-tune.py]: ../bin/fine-tune.py
+[bin/evaluate.py]: ../bin/evaluate.py
+
+
 Tests and Code Quality
 ----------------------
 The code is formatted with [black][black]. You can run the formatter using the
