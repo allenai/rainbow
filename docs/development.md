@@ -68,11 +68,16 @@ To fine-tune the model, use [`bin/fine-tune.py`][bin/fine-tune.py]:
                                       Defaults to 3B.
       --n-steps INTEGER               The number of gradient updates. Defaults to
                                       25,000.
+      --learning-rate FLOAT           The learning rate to use for training.
+                                      Defaults to 3e-3.
       --batch-size INTEGER            The batch size to use for training. For
                                       efficient training on the TPU, choose a
                                       multiple of either 8 or 128. Defaults to 16.
       --model-parallelism INTEGER     The degree of model parallelism to use.
                                       Defaults to 8.
+      --save-checkpoints-steps INTEGER
+                                      The number of steps to take before saving a
+                                      checkpoint. Defaults to 5000.
       --n-checkpoints-to-keep INTEGER
                                       The number of checkpoints to keep during
                                       fine-tuning. Defaults to 4.

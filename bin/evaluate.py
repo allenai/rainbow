@@ -73,7 +73,7 @@ def evaluate(
         model_parallelism=model_parallelism,
         batch_size=batch_size,
         sequence_length={"inputs": 512, "targets": 512},
-        learning_rate_schedule=0.003,
+        learning_rate_schedule=None,
         save_checkpoints_steps=5000,
         keep_checkpoint_max=None,
         iterations_per_loop=100,

@@ -42,6 +42,12 @@ PRETRAINED_MODELS = {
     help="The number of gradient updates. Defaults to 25,000.",
 )
 @click.option(
+    "--learning-rate",
+    type=float,
+    default=3e-3,
+    help="The learning rate to use for training. Defaults to 3e-3.",
+)
+@click.option(
     "--batch-size",
     type=int,
     default=16,
@@ -53,6 +59,13 @@ PRETRAINED_MODELS = {
     type=int,
     default=8,
     help="The degree of model parallelism to use. Defaults to 8.",
+)
+@click.option(
+    "--save-checkpoints-steps",
+    type=int,
+    default=5000,
+    help="The number of steps to take before saving a checkpoint. Defaults to"
+    " 5000.",
 )
 @click.option(
     "--n-checkpoints-to-keep",
@@ -79,8 +92,10 @@ def fine_tune(
     results_dir: str,
     pretrained_model: str,
     n_steps: int,
+    learning_rate: float,
     batch_size: int,
     model_parallelism: int,
+    save_checkpoints_steps: int,
     n_checkpoints_to_keep: int,
     tpu_name: str,
     tpu_topology: str,
@@ -119,8 +134,8 @@ def fine_tune(
         model_parallelism=model_parallelism,
         batch_size=batch_size,
         sequence_length={"inputs": 512, "targets": 512},
-        learning_rate_schedule=0.003,
-        save_checkpoints_steps=5000,
+        learning_rate_schedule=learning_rate,
+        save_checkpoints_steps=save_checkpoints_steps,
         keep_checkpoint_max=n_checkpoints_to_keep,
         iterations_per_loop=100,
     )
