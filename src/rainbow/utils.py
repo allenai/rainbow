@@ -1,31 +1,9 @@
-"""Miscellaneous utilities."""
+"""Utilities for rainbow."""
 
+import contextlib
 import logging
-from typing import Any, Dict, List
 
 from . import settings
-
-
-def transpose_dictionary(d: Dict[str, List[Any]]) -> List[Dict[str, Any]]:
-    """Return ``d`` as a list of dictionaries.
-
-    Given a dictionary with values that are lists of the same length, transpose
-    it into a list of dictionaries::
-
-        >>> transpose_dictionary({'a': [1, 2, 3], 'b': [True, False, False]})
-        [{'a': 1, 'b': True}, {'a': 2, 'b': False}, {'a': 3, 'b': False}]
-
-    Parameters
-    ----------
-    d : Dict[str, List[Any]]
-        A dictionary of lists all of the same length.
-
-    Returns
-    -------
-    List[Dict[str, Any]]
-        A list of dictionaries representing the "transpose" of ``d``.
-    """
-    return [{k: v for k, v in zip(d.keys(), vs)} for vs in zip(*d.values())]
 
 
 def configure_logging(verbose: bool = False) -> logging.Handler:
@@ -37,13 +15,12 @@ def configure_logging(verbose: bool = False) -> logging.Handler:
     Parameters
     ----------
     verbose : bool, optional (default=False)
-        If ``True``, set the log level to DEBUG, else set the log level
-        to INFO.
+        If ``True`` set the log level to DEBUG, else set it to INFO.
 
     Returns
     -------
     logging.Handler
-        The log handler set up by this function to handle basic logging.
+        The log handler set up by this function.
     """
     # unset the log level from root (defaults to WARNING)
     logging.root.setLevel(logging.NOTSET)
@@ -57,3 +34,54 @@ def configure_logging(verbose: bool = False) -> logging.Handler:
     logging.root.addHandler(handler)
 
     return handler
+
+
+class FileLogging(contextlib.AbstractContextManager):
+    """A context manager for logging to a file.
+
+    Use this context manager to log output to a file. The context manager
+    returns the log handler for the file. The manager attaches the handler to
+    the root logger on entering the context and detaches it upon exit.
+
+    Parameters
+    ----------
+    file_path : str, required
+        The path at which to write the log file.
+
+    Example
+    -------
+    Use the context manager as follows::
+
+        with FileLogging('foo.log') as log_handler:
+            # modify the log hander if desired.
+            ...
+
+    """
+
+    def __init__(self, file_path: str) -> None:
+        self.file_path = file_path
+        self.handler = None
+
+    def __enter__(self) -> logging.Handler:
+        if logging.root.level != logging.NOTSET:
+            raise ValueError(
+                "The root logger must have log level NOTSET to use the"
+                " FileLogging context."
+            )
+
+        # Create the log handler for the file.
+        handler = logging.FileHandler(self.file_path)
+
+        # Configure the log handler.
+        handler.setLevel(logging.DEBUG)
+        handler.setFormatter(logging.Formatter(settings.LOG_FORMAT))
+
+        # Attach the log handler to the root logger.
+        logging.root.addHandler(handler)
+
+        self.handler = handler
+
+        return self.handler
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        logging.root.removeHandler(self.handler)

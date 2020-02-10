@@ -1,413 +1,176 @@
-"""Datasets."""
+"""Dataset definitions for rainbow."""
 
-import json
-import os
-from typing import Any, Callable, List, Optional, Tuple
-from zipfile import ZipFile
+from typing import Dict, List
 
-import msgpack
-from sklearn import metrics
-from torch.utils.data import Dataset
-
-from . import settings
-from .features import TextFeature
-from .instances import MultipleChoiceInstance
+import attr
 
 
-class MultipleChoiceDataset(Dataset):
-    """A base class for multiple choice datasets."""
-
-    preprocessed_path_templates = {
-        "atomic": "{split}.atomic-{name}.msg",
-        "conceptnet": "{split}.conceptnet-{name}.msg",
-        "original": "{split}.original-{name}.msg",
-    }
-
-    name = None
-    metric = None
-    splits = None
-    num_choices = None
-
-    @classmethod
-    def read_raw_instances(
-        cls, dataset_path, split
-    ) -> List[MultipleChoiceInstance]:
-        raise NotImplementedError
-
-    def _read_data(self):
-        raise NotImplementedError
-
-    def __init__(
-        self,
-        data_dir: str,
-        split: str,
-        transform: Optional[Callable] = None,
-        transform_embedding: Optional[Callable] = None,
-        augmentation_type: str = "original",
-    ) -> None:
-        super().__init__()
-
-        if split not in self.splits:
-            raise ValueError(
-                f"Unrecognized value for split, split must be one of"
-                f" {', '.join(self.splits)}."
-            )
-
-        if augmentation_type not in settings.AUGMENTATION_TYPES:
-            raise ValueError(
-                f"Unrecognized augmentation_type ({augmentation_type})."
-            )
-
-        self.data_dir = data_dir
-        self.split = split
-        self.transform = transform
-        self.transform_embedding = transform_embedding
-        self.augmentation_type = augmentation_type
-
-        self.ids, self.features, self.embeddings, self.labels = (
-            self._read_data()
-        )
-
-    def __len__(self) -> int:
-        return len(self.ids)
-
-    def __getitem__(self, key: int) -> Tuple[str, Any, Any]:
-        id_ = self.ids[key]
-        feature = self.features[key]
-        embedding = self.embeddings[key]
-        label = self.labels[key]
-
-        if self.transform:
-            feature, label = self.transform(feature, label)
-
-        if self.transform_embedding:
-            embedding = self.transform_embedding(embedding)
-
-        return id_, feature, embedding, label
+# core classes
 
 
-class SocialIQADataset(MultipleChoiceDataset):
-    """The SocialIQA dataset."""
+@attr.s(auto_attribs=True, frozen=True, kw_only=True, slots=True)
+class Split:
+    """A single split (train, validation, test, ...) of a dataset."""
 
-    _file_names = {
-        "train": {
-            "features": "socialiqa-train-dev/train.jsonl",
-            "labels": "socialiqa-train-dev/train-labels.lst",
-        },
-        "dev": {
-            "features": "socialiqa-train-dev/dev.jsonl",
-            "labels": "socialiqa-train-dev/dev-labels.lst",
-        },
-    }
+    name: str
+    features_path: str
+    labels_path: str
+    size: int
 
-    _QUESTION_TEMPLATES = [
-        ("How would", "feel as a result?", ["x_react", "o_react"]),
-        ("What will happen to", "?", ["x_effect", "o_effect"]),
-        ("How would", "feel afterwards?", ["x_react", "o_react"]),
-        ("What does", "need to do before this?", ["x_intent", "x_need"]),
-        ("Why did", "do this?", ["x_intent", "x_need"]),
-        ("How would you describe", "?", ["x_attr", "x_effect"]),
-        ("What will", "want to do next?", ["x_want", "o_want"]),
-    ]
 
-    name = "socialiqa"
-    splits = ["train", "dev"]
-    metric = metrics.accuracy_score
-    num_choices = 3
+@attr.s(auto_attribs=True, frozen=True, kw_only=True, slots=True)
+class Dataset:
+    """A class representing a rainbow dataset."""
 
-    @classmethod
-    def _question_to_relations(cls, question) -> str:
-        for start, end, relations in cls._QUESTION_TEMPLATES:
-            if question.startswith(start) and question.endswith(end):
-                return relations
+    name: str
+    url: str
+    checksum: str
+    file_name: str
+    feature_names: List[str]
+    splits: Dict[str, Split]
 
-        return ["x_want", "o_want"]
 
-    @classmethod
-    def read_raw_instances(
-        cls, dataset_path, split
-    ) -> List[MultipleChoiceInstance]:
-        with ZipFile(dataset_path) as dataset_zip:
-            features_path = cls._file_names[split]["features"]
-            with dataset_zip.open(features_path, "r") as features_file:
-                features = [json.loads(ln) for ln in features_file]
+# constants
 
-            labels_path = cls._file_names[split]["labels"]
-            with dataset_zip.open(labels_path, "r") as labels_file:
-                labels = [ln.decode().strip() for ln in labels_file]
-
-        return [
-            MultipleChoiceInstance(
-                features={
-                    "context": TextFeature(text=feature["context"]),
-                    "question": TextFeature(text=feature["question"]),
-                },
-                answers=[
-                    TextFeature(text=feature["answerA"]),
-                    TextFeature(text=feature["answerB"]),
-                    TextFeature(text=feature["answerC"]),
-                ],
-                label=int(label) - 1,
-            )
-            for feature, label in zip(features, labels)
-        ]
-
-    def _read_data(self):
-        ids, features, embeddings, labels = [], [], [], []
-
-        split_path = os.path.join(
-            self.data_dir,
-            self.preprocessed_path_templates["atomic"].format(
-                split=self.split, name=self.name
+RAINBOW_DATASETS = {
+    # AlphaNLI
+    "anli": Dataset(
+        name="anli",
+        url="gs://ai2-mosaic/public/alphanli/alphanli-train-dev.zip",
+        checksum="24840b27553e93ec625ae020dbf78d92daeae4be31ebbd469a0c9f6f99ed1c8d",
+        file_name="alphanli-train-dev.zip",
+        feature_names=["obs1", "obs2", "hyp1", "hyp2"],
+        splits={
+            "train": Split(
+                name="train",
+                features_path="train.jsonl",
+                labels_path="train-labels.lst",
+                size=169654,
             ),
-        )
-        with open(split_path, "rb") as split_file:
-            for i, row in enumerate(msgpack.Unpacker(split_file, raw=False)):
-                relations = self._question_to_relations(
-                    row["features"]["question"]["text"]
-                )
-
-                if self.augmentation_type == "original":
-                    feature = [
-                        [
-                            row["features"]["context"]["text"],
-                            row["features"]["question"]["text"],
-                            answer["text"],
-                        ]
-                        for answer in row["answers"]
-                    ]
-                    embedding = []
-                elif self.augmentation_type == "atomic_text":
-                    feature = [
-                        [
-                            row["features"]["context"]["text"],
-                            row["features"]["context"][relations[0]],
-                            row["features"]["context"][relations[1]],
-                            row["features"]["question"]["text"],
-                            answer["text"],
-                        ]
-                        for answer in row["answers"]
-                    ]
-                    embedding = []
-                elif self.augmentation_type == "atomic_vector":
-                    feature = [
-                        [
-                            row["features"]["context"]["text"],
-                            row["features"]["question"]["text"],
-                            answer["text"],
-                        ]
-                        for answer in row["answers"]
-                    ]
-                    embedding = [
-                        [
-                            row["features"]["context"][f"{relation}_embeddings"]
-                            for relation in settings.ATOMIC_RELATIONS
-                        ]
-                        for answer in row["answers"]
-                    ]
-
-                ids.append(f"id{i}")
-                features.append(feature)
-                embeddings.append(embedding)
-                labels.append(row["label"])
-
-        return ids, features, embeddings, labels
-
-
-class WinoGrandeDataset(MultipleChoiceDataset):
-    """The WinoGrande dataset."""
-
-    _file_names = {
-        "train": {
-            "features": "winogrande_1.1/train.jsonl",
-            "labels": "winogrande_1.1/train-labels.lst",
-        },
-        "dev": {
-            "features": "winogrande_1.1/dev.jsonl",
-            "labels": "winogrande_1.1/dev-labels.lst",
-        },
-    }
-
-    _name_options = {
-        "Aaron",
-        "Adam",
-        "Amy",
-        "Angela",
-        "Benjamin",
-        "Betty",
-        "Brett",
-        "Brian",
-        "Carrie",
-        "Christine",
-        "Christopher",
-        "Craig",
-        "Cynthia",
-        "Dennis",
-        "Derrick",
-        "Donald",
-        "Elena",
-        "Emily",
-        "Eric",
-        "Erin",
-        "Felicia",
-        "Hunter",
-        "Ian",
-        "Jason",
-        "Jeffrey",
-        "Jennifer",
-        "Jessica",
-        "Joel",
-        "Joseph",
-        "Justin",
-        "Katrina",
-        "Kayla",
-        "Kenneth",
-        "Kevin",
-        "Kyle",
-        "Laura",
-        "Lawrence",
-        "Leslie",
-        "Lindsey",
-        "Logan",
-        "Maria",
-        "Mary",
-        "Matthew",
-        "Megan",
-        "Michael",
-        "Monica",
-        "Natalie",
-        "Neil",
-        "Nelson",
-        "Nick",
-        "Patricia",
-        "Rachel",
-        "Randy",
-        "Rebecca",
-        "Robert",
-        "Ryan",
-        "Samantha",
-        "Samuel",
-        "Sarah",
-        "Steven",
-        "Tanya",
-        "Victoria",
-        "William",
-    }
-
-    _text_relations = [
-        "at_location",
-        "capable_of",
-        "causes",
-        "has_a",
-        "has_property",
-        "is_a",
-        "made_of",
-        "part_of",
-        "symbol_of",
-        "used_for",
-    ]
-
-    name = "winogrande"
-    splits = ["train", "dev"]
-    metric = metrics.accuracy_score
-    num_choices = 2
-
-    @classmethod
-    def read_raw_instances(
-        cls, dataset_path, split
-    ) -> List[MultipleChoiceInstance]:
-        with ZipFile(dataset_path) as dataset_zip:
-            features_path = cls._file_names[split]["features"]
-            with dataset_zip.open(features_path, "r") as features_file:
-                features = [json.loads(ln) for ln in features_file]
-
-            labels_path = cls._file_names[split]["labels"]
-            with dataset_zip.open(labels_path, "r") as labels_file:
-                labels = [ln.decode().strip() for ln in labels_file]
-
-        return [
-            MultipleChoiceInstance(
-                features={"sentence": TextFeature(text=feature["sentence"])},
-                answers=[
-                    TextFeature(text=feature["option1"]),
-                    TextFeature(text=feature["option2"]),
-                ],
-                label=int(label) - 1,
-            )
-            for feature, label in zip(features, labels)
-        ]
-
-    def _read_data(self):
-        ids, features, embeddings, labels = [], [], [], []
-
-        split_path = os.path.join(
-            self.data_dir,
-            self.preprocessed_path_templates["conceptnet"].format(
-                split=self.split, name=self.name
+            "validation": Split(
+                name="validation",
+                features_path="dev.jsonl",
+                labels_path="dev-labels.lst",
+                size=1532,
             ),
-        )
-        with open(split_path, "rb") as split_file:
-            for i, row in enumerate(msgpack.Unpacker(split_file, raw=False)):
-                if (
-                    row["answers"][0]["text"] in self._name_options
-                    or row["answers"][1]["text"] in self._name_options
-                ):
-                    # N.B. only include the physical portion of WinoGrande
-                    continue
-
-                if self.augmentation_type == "original":
-                    feature = [
-                        [
-                            row["features"]["sentence"]["text"].replace(
-                                "_", "<mask>"
-                            ),
-                            answer["text"],
-                        ]
-                        for answer in row["answers"]
-                    ]
-                    embedding = []
-                elif self.augmentation_type == "conceptnet_text":
-                    feature = []
-                    for answer in range(2):
-                        answer_feature = [
-                            row["features"]["sentence"]["text"].replace(
-                                "_", "<mask>"
-                            ),
-                            row["answers"][answer]["text"],
-                        ]
-                        for relation in self._text_relations:
-                            answer_feature.append(
-                                row["answers"][answer][relation]
-                            )
-                        feature.append(answer_feature)
-                    embedding = []
-                elif self.augmentation_type == "conceptnet_vector":
-                    feature = [
-                        [
-                            answer["text"],
-                            row["features"]["sentence"]["text"].replace(
-                                "_", "<mask>"
-                            ),
-                        ]
-                        for answer in row["answers"]
-                    ]
-                    embedding = [
-                        [
-                            answer[f"{relation}_embeddings"]
-                            for relation in settings.CONCEPTNET_RELATIONS
-                        ]
-                        for answer in row["answers"]
-                    ]
-
-                ids.append(f"id{i}")
-                features.append(feature)
-                embeddings.append(embedding)
-                labels.append(row["label"])
-
-        return ids, features, embeddings, labels
-
-
-DATASETS = {
-    SocialIQADataset.name: SocialIQADataset,
-    WinoGrandeDataset.name: WinoGrandeDataset,
+        },
+    ),
+    # CosmosQA
+    "cosmosqa": Dataset(
+        name="cosmosqa",
+        url="gs://ai2-mosaic/public/cosmosqa/cosmosqa-data.zip",
+        checksum="d06bfef918240b34b6f86fdfd8215d15fea2abced0bfca8ab99004e3bce760ec",
+        file_name="cosmosqa-data.zip",
+        feature_names=[
+            "context",
+            "question",
+            "answer0",
+            "answer1",
+            "answer2",
+            "answer3",
+        ],
+        splits={
+            "train": Split(
+                name="train",
+                features_path="train.jsonl",
+                labels_path="train-labels.lst",
+                size=25262,
+            ),
+            "validation": Split(
+                name="validation",
+                features_path="valid.jsonl",
+                labels_path="valid-labels.lst",
+                size=2985,
+            ),
+        },
+    ),
+    # HellaSWAG
+    "hellaswag": Dataset(
+        name="hellaswag",
+        url="gs://ai2-mosaic/public/hellaswag/hellaswag-train-dev.zip",
+        checksum="5d5d70300eff7af886c184477bb076fbfa24336cb300c52c3b6e62644d14d928",
+        file_name="hellaswag-train-dev.zip",
+        feature_names=["ctx", "ending_options"],
+        splits={
+            "train": Split(
+                name="train",
+                features_path="hellaswag-train-dev/train.jsonl",
+                labels_path="hellaswag-train-dev/train-labels.lst",
+                size=39905,
+            ),
+            "validation": Split(
+                name="validation",
+                features_path="hellaswag-train-dev/valid.jsonl",
+                labels_path="hellaswag-train-dev/valid-labels.lst",
+                size=10042,
+            ),
+        },
+    ),
+    # PhysicalIQA
+    "physicaliqa": Dataset(
+        name="physicaliqa",
+        url="gs://ai2-mosaic/public/physicaliqa/physicaliqa-train-dev.zip",
+        checksum="54d32a04f59a7e354396f321723c8d7ec35cc6b08506563d8d1ffcc15ce98ddd",
+        file_name="physicaliqa-train-dev.zip",
+        feature_names=["goal", "sol1", "sol2"],
+        splits={
+            "train": Split(
+                name="train",
+                features_path="physicaliqa-train-dev/train.jsonl",
+                labels_path="physicaliqa-train-dev/train-labels.lst",
+                size=16113,
+            ),
+            "validation": Split(
+                name="validation",
+                features_path="physicaliqa-train-dev/dev.jsonl",
+                labels_path="physicaliqa-train-dev/dev-labels.lst",
+                size=1838,
+            ),
+        },
+    ),
+    # SocialIQA
+    "socialiqa": Dataset(
+        name="socialiqa",
+        url="gs://ai2-mosaic/public/socialiqa/socialiqa-train-dev.zip",
+        checksum="ee073914a0fc33265cfbcfc50ec20df9b2e07809c3f420f599138d1f394ef5c3",
+        file_name="socialiqa-train-dev.zip",
+        feature_names=["context", "question", "answerA", "answerB", "answerC"],
+        splits={
+            "train": Split(
+                name="train",
+                features_path="socialiqa-train-dev/train.jsonl",
+                labels_path="socialiqa-train-dev/train-labels.lst",
+                size=33410,
+            ),
+            "validation": Split(
+                name="validation",
+                features_path="socialiqa-train-dev/dev.jsonl",
+                labels_path="socialiqa-train-dev/dev-labels.lst",
+                size=1954,
+            ),
+        },
+    ),
+    # WinoGrande
+    "winogrande": Dataset(
+        name="winogrande",
+        url="gs://ai2-mosaic/public/winogrande/winogrande_1.1.zip",
+        checksum="db997e35f11b014043531e7cd7ef30591022fd5946063e1e1e1416963d342fa5",
+        file_name="winogrande_1.1.zip",
+        feature_names=["sentence", "option1", "option2"],
+        splits={
+            "train": Split(
+                name="train",
+                features_path="winogrande_1.1/train_xl.jsonl",
+                labels_path="winogrande_1.1/train_xl-labels.lst",
+                size=40398,
+            ),
+            "validation": Split(
+                name="validation",
+                features_path="winogrande_1.1/dev.jsonl",
+                labels_path="winogrande_1.1/dev-labels.lst",
+                size=1267,
+            ),
+        },
+    ),
 }
+"""The Rainbow Datasets."""

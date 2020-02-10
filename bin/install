@@ -4,7 +4,7 @@
 #
 # This script:
 #
-#   1. Upgrades pip.
+#   1. Upgrades pip and setuptools.
 #   2. Installs package requirements.
 #   3. Installs development requirements.
 #   4. Installs the package.
@@ -20,37 +20,14 @@ ROOT=$(git rev-parse --show-toplevel)
 
 # Setup the repository.
 
-# upgrade pip
-pip install --upgrade pip
+# upgrade pip and setuptools.
+pip install --upgrade pip setuptools
 
 # install requirements
 pip install --requirement "$ROOT/requirements.txt"
 
 # install development requirements
 pip install --requirement "$ROOT/dev-requirements.txt"
-
-# install comet
-pip install \
-    tensorflow \
-    ftfy==5.1 \
-    spacy \
-    tensorboardX \
-    tqdm \
-    pandas \
-    ipython
-
-python -m spacy download en
-
-pip install \
-    --no-cache-dir \
-    git+ssh://git@github.com/allenai/comet.git@package#egg=comet
-
-# install apex
-pip install \
-    --no-cache-dir \
-    --global-option="--cpp_ext" \
-    --global-option="--cuda_ext" \
-    git+git://github.com/nvidia/apex.git
 
 # install the package
 pip install --editable "$ROOT"
