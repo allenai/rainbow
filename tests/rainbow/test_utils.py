@@ -68,3 +68,13 @@ class FileLoggingTestCase(unittest.TestCase):
 
         self.assertEqual(len(logging.root.handlers), n_handlers_before)
         self.assertNotIn(handler, logging.root.handlers)
+
+
+class StringToSeedTestCase(unittest.TestCase):
+    """Test rainbow.utils.string_to_seed."""
+
+    def test_maps_a_string_to_an_int(self):
+        self.assertIsInstance(utils.string_to_seed("foo"), int)
+
+    def test_is_deterministic(self):
+        self.assertEqual(utils.string_to_seed("foo"), 740734059)

@@ -1,0 +1,6 @@
+"index","inputs","targets"
+"1","foo 0","0"
+"2","bar 0","0"
+"3","foo 1","1"
+"4","bar 1","1"
+"5","foo bar 0","0"
