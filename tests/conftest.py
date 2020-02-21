@@ -1,5 +1,6 @@
 """Configuration for running tests."""
 
+import tensorflow as tf
 import pytest
 
 
@@ -17,3 +18,8 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "slow" in item.keywords:
                 item.add_marker(skip_slow)
+
+
+def pytest_configure(config):
+    # Enable eager execution in tensorflow.
+    tf.enable_eager_execution()

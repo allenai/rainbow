@@ -1,0 +1,6 @@
+"index","inputs","targets"
+"1","baz 0","0"
+"2","baz 0","0"
+"3","qux 1","1"
+"4","qux 1","1"
+"5","baz qux 0","0"

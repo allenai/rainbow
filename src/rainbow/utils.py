@@ -1,6 +1,7 @@
 """Utilities for rainbow."""
 
 import contextlib
+import hashlib
 import logging
 
 from . import settings
@@ -85,3 +86,19 @@ class FileLogging(contextlib.AbstractContextManager):
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         logging.root.removeHandler(self.handler)
+
+
+def string_to_seed(s: str) -> int:
+    """Return an integer suitable for using as a random seed.
+
+    Given a string, ``s``, return an integer suitable for using as a
+    random seed in a deterministic way based on ``s``.
+
+    Parameters
+    ----------
+    s : str, required
+        The string to convert into an integer.
+    """
+    checksum = hashlib.sha256(s.encode("utf-8")).hexdigest()
+    seed = int(checksum[:8], 16)
+    return seed
