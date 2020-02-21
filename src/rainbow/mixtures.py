@@ -24,7 +24,7 @@ for dataset in datasets.RAINBOW_DATASETS.values():
             continue
 
         t5.data.MixtureRegistry.add(
-            f"{dataset.name}_{size}_rainbow_equal",
+            f"{dataset.name}_{size}_rainbow_equal_mixture",
             [f"{dataset.name}_{size}_task"]
             + [
                 f"{other_dataset.name}_task"
@@ -35,7 +35,7 @@ for dataset in datasets.RAINBOW_DATASETS.values():
         )
 
         t5.data.MixtureRegistry.add(
-            f"{dataset.name}_{size}_rainbow_proportional",
+            f"{dataset.name}_{size}_rainbow_proportional_mixture",
             [f"{dataset.name}_{size}_task"]
             + [
                 f"{other_dataset.name}_task"
