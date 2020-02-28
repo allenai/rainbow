@@ -15,6 +15,17 @@ for dataset in datasets.RAINBOW_DATASETS.values():
         f"{dataset.name}_mixture", [f"{dataset.name}_task"], default_rate=1.0
     )
 
+for dataset in datasets.RAINBOW_DATASETS.values():
+    for size in settings.LEARNING_CURVE_SIZES:
+        if size is None:
+            continue
+
+        t5.data.MixtureRegistry.add(
+            f"{dataset.name}_{size}_mixture",
+            [f"{dataset.name}_{size}_task"],
+            default_rate=1.0,
+        )
+
 
 # Create the leave-one-task-out mixtures
 
