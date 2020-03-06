@@ -1,10 +1,9 @@
-Development
-===========
+# Development
+
 Development documentation for `rainbow`.
 
+## Setup
 
-Setup
------
 This project requires Python 3.6 or above.
 
 First, install the project's dependencies:
@@ -13,35 +12,34 @@ First, install the project's dependencies:
 
 Next, make sure you have the following environment variables set:
 
-  1. `RAINBOW_DATASETS_DIR`: The directory for storing the rainbow
-     datasets.
-  2. `RAINBOW_PREPROCESSED_DATASETS_DIR`: The directory for storing the
-     preprocessed dataset split files for rainbow.
+1. `RAINBOW_DATASETS_DIR`: The directory for storing all relevant datasets.
+2. `RAINBOW_PREPROCESSED_DATASETS_DIR`: The directory for storing the
+   preprocessed dataset split files.
 
 Training requires TPUs. For training, all directories should point to Google
 Cloud Storage prefixes. Additionally, you'll need the following environment
 variables:
 
-  1. `PROJECT`: Your Google Cloud project's ID.
-  2. `ZONE`: Your Google Cloud virtual machine's zone.
-  3. `TPU_NAME`: Your TPU's name.
-  4. `TPU_TOPOLOGY`: Your TPU's topology.
+1. `PROJECT`: Your Google Cloud project's ID.
+2. `ZONE`: Your Google Cloud virtual machine's zone.
+3. `TPU_NAME`: Your TPU's name.
+4. `TPU_TOPOLOGY`: Your TPU's topology.
 
-Then, download and preprocess the rainbow datasets:
+Then, download and prepare all the datasets for text-to-text modeling:
 
-    $ ./bin/preprocess.py --help
-    Usage: preprocess.py [OPTIONS]
+    $ ./bin/prepare.py --help
+    Usage: prepare.py [OPTIONS]
 
-      Preprocess the rainbow datasets for text-to-text modeling.
+      Prepare all relevant datasets for text-to-text modeling.
 
-      Download to and read the rainbow datasets from --src, transform them into
-      CSVs suitable for text-to-text models, then write the results to --dst.
-      Google storage paths are supported.
+      Download to and read the datasets from --src, transform them into CSVs
+      suitable for text-to-text models, then write the results to --dst. Google
+      storage paths are supported.
 
     Options:
-      --src TEXT        The directory to which to download the rainbow datasets.
-                        Defaults to the RAINBOW_DATASETS_DIR environment variable.
-                        [required]
+      --src TEXT        The directory to which to download all the relevant
+                        datasets. Defaults to the RAINBOW_DATASETS_DIR environment
+                        variable.  [required]
       --dst TEXT        The directory to which to write the preprocessed dataset
                         files. Defaults to the RAINBOW_PREPROCESSED_DATASETS_DIR
                         environment variable.  [required]
@@ -53,9 +51,8 @@ Finally, verify your installation:
 
     ./bin/verify
 
+## Fine-tuning and Evaluation
 
-Fine-tuning and Evaluation
---------------------------
 To fine-tune the model, use [`bin/fine-tune.py`][bin/fine-tune.py]:
 
     $ ./bin/fine-tune.py --help
@@ -110,9 +107,8 @@ To evaluate the model, use [`bin/evaluate.py`][bin/evaluate.py]:
 [bin/fine-tune.py]: ../bin/fine-tune.py
 [bin/evaluate.py]: ../bin/evaluate.py
 
+## Tests and Code Quality
 
-Tests and Code Quality
-----------------------
 The code is formatted with [black][black]. You can run the formatter using the
 [`bin/format`][bin/format] script:
 
@@ -130,7 +126,6 @@ directly:
 You can also skip slower tests by passing the `--skip-slow` (`-s`) flag:
 
     $ pytest --skip-slow
-
 
 [black]: https://black.readthedocs.io/en/stable/
 [bin/format]: ../bin/format
