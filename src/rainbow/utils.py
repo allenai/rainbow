@@ -4,6 +4,8 @@ import contextlib
 import hashlib
 import logging
 
+import attr
+
 from . import settings
 
 
@@ -102,3 +104,10 @@ def string_to_seed(s: str) -> int:
     checksum = hashlib.sha256(s.encode("utf-8")).hexdigest()
     seed = int(checksum[:8], 16)
     return seed
+
+
+def data(func):
+    """A decorator for defining data."""
+    return attr.s(auto_attribs=True, frozen=True, kw_only=True, slots=True)(
+        func
+    )
