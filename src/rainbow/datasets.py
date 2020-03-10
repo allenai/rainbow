@@ -89,16 +89,16 @@ KNOWLEDGE_GRAPH_DATASETS = {
     "atomic": Dataset(
         name="atomic",
         splits={
-            "train": Split(name="train", size=709996),
-            "validation": Split(name="validation", size=79600),
+            "train": Split(name="train", size=2 * 709996),
+            "validation": Split(name="validation", size=2 * 79600),
         },
     ),
     # ConceptNet
     "conceptnet": Dataset(
         name="conceptnet",
         splits={
-            "train": Split(name="train", size=100000),
-            "validation": Split(name="validation", size=1200),
+            "train": Split(name="train", size=2 * 100000),
+            "validation": Split(name="validation", size=2 * 1200),
         },
     ),
 }

@@ -28,12 +28,12 @@ class AtomicPreparer(preparer.Preparer):
         "splits": {
             "train": {
                 "name": "train",
-                "size": 709996,
+                "size": 2 * 709996,
                 "file_path": "v4_atomic_trn.csv",
             },
             "validation": {
                 "name": "validation",
-                "size": 79600,
+                "size": 2 * 79600,
                 "file_path": "v4_atomic_dev.csv",
             },
         },
@@ -125,35 +125,61 @@ class AtomicPreparer(preparer.Preparer):
                         reader = csv.DictReader(split_file)
                         for i, row_in in enumerate(reader):
                             for relation in self.ATOMIC["relations"]:
-                                inputs = (
-                                    f"[{self.ATOMIC['name']}]:\n"
-                                    f"<subject>{row_in['event']}</subject>\n"
-                                    f"<relation>{relation}</relation>"
-                                )
-                                for effect in json.loads(row_in[relation]):
-                                    targets = effect
-
-                                    row_out = {
+                                for object_ in json.loads(row_in[relation]):
+                                    # create an example of KB completion in the
+                                    # forward direction (subject, relation ->
+                                    # object)
+                                    row_out_forward = {
                                         "index": rows_written,
-                                        "inputs": inputs,
-                                        "targets": targets,
+                                        "inputs": (
+                                            f"[{self.ATOMIC['name']}]:\n"
+                                            f"<subject>{row_in['event']}</subject>\n"
+                                            f"<relation>{relation}</relation>"
+                                        ),
+                                        "targets": f"<object>{object_}</object>",
                                     }
+
+                                    # create an example of KB completion in the
+                                    # backward direction (object, relation ->
+                                    # subject)
+                                    row_out_backward = {
+                                        "index": rows_written + 1,
+                                        "inputs": (
+                                            f"[{self.ATOMIC['name']}]:\n"
+                                            f"<object>{object_}</object>\n"
+                                            f"<relation>{relation}</relation>"
+                                        ),
+                                        "targets": f"<subject>{row_in['event']}</subject>",
+                                    }
+
                                     if i == 0:
                                         logger.info(
                                             f"\n\n"
-                                            f"Example {row_out['index']} from"
+                                            f"Example {row_out_forward['index']} from"
                                             f" {self.ATOMIC['name']}'s"
                                             f" {split['name']} split:\n"
                                             f"inputs:\n"
-                                            f"{row_out['inputs']}\n"
+                                            f"{row_out_forward['inputs']}\n"
                                             f"targets:\n"
-                                            f"{row_out['targets']}\n"
+                                            f"{row_out_forward['targets']}\n"
+                                            f"\n"
+                                        )
+                                        logger.info(
+                                            f"\n\n"
+                                            f"Example {row_out_backward['index']} from"
+                                            f" {self.ATOMIC['name']}'s"
+                                            f" {split['name']} split:\n"
+                                            f"inputs:\n"
+                                            f"{row_out_backward['inputs']}\n"
+                                            f"targets:\n"
+                                            f"{row_out_backward['targets']}\n"
                                             f"\n"
                                         )
 
                                     # Write to the CSV.
-                                    writer.writerow(row_out)
-                                    rows_written += 1
+                                    writer.writerow(row_out_forward)
+                                    writer.writerow(row_out_backward)
+                                    rows_written += 2
 
                     if rows_written != split["size"]:
                         logger.error(

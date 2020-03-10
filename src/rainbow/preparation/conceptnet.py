@@ -27,7 +27,7 @@ class ConceptNetPreparer(preparer.Preparer):
         "splits": {
             "train": {
                 "name": "train",
-                "size": 100000,
+                "size": 2 * 100000,
                 "files": [
                     {
                         "url": "https://ttic.uchicago.edu/~kgimpel/comsense_resources/train100k.txt.gz",
@@ -38,7 +38,7 @@ class ConceptNetPreparer(preparer.Preparer):
             },
             "validation": {
                 "name": "validation",
-                "size": 1200,
+                "size": 2 * 1200,
                 "files": [
                     {
                         "url": "https://ttic.uchicago.edu/~kgimpel/comsense_resources/dev1.txt.gz",
@@ -131,34 +131,60 @@ class ConceptNetPreparer(preparer.Preparer):
                                     # sample, so skip it.
                                     continue
 
-                                inputs = (
-                                    f"[{self.CONCEPTNET['name']}]:\n"
-                                    f"<subject>{row_in[1]}</subject>\n"
-                                    f"<relation>{row_in[0]}</relation>"
-                                )
-                                targets = row_in[2]
-
-                                row_out = {
+                                # create an example of KB completion in the
+                                # forward direction (subject, relation ->
+                                # object)
+                                row_out_forward = {
                                     "index": rows_written,
-                                    "inputs": inputs,
-                                    "targets": targets,
+                                    "inputs": (
+                                        f"[{self.CONCEPTNET['name']}]:\n"
+                                        f"<subject>{row_in[1]}</subject>\n"
+                                        f"<relation>{row_in[0]}</relation>"
+                                    ),
+                                    "targets": f"<object>{row_in[2]}</object>",
                                 }
+
+                                # create an example of KB completion in the
+                                # backward direction (object, relation ->
+                                # subject)
+                                row_out_backward = {
+                                    "index": rows_written + 1,
+                                    "inputs": (
+                                        f"[{self.CONCEPTNET['name']}]:\n"
+                                        f"<object>{row_in[2]}</object>\n"
+                                        f"<relation>{row_in[0]}</relation>"
+                                    ),
+                                    "targets": f"<subject>{row_in[1]}</subject>",
+                                }
+
                                 if i == 0:
                                     logger.info(
                                         f"\n\n"
-                                        f"Example {row_out['index']} from"
+                                        f"Example {row_out_forward['index']} from"
                                         f" {self.CONCEPTNET['name']}'s"
                                         f" {split['name']} split:\n"
                                         f"inputs:\n"
-                                        f"{row_out['inputs']}\n"
+                                        f"{row_out_forward['inputs']}\n"
                                         f"targets:\n"
-                                        f"{row_out['targets']}\n"
+                                        f"{row_out_forward['targets']}\n"
+                                        f"\n"
+                                    )
+                                    logger.info(
+                                        f"\n\n"
+                                        f"Example {row_out_backward['index']} from"
+                                        f" {self.CONCEPTNET['name']}'s"
+                                        f" {split['name']} split:\n"
+                                        f"inputs:\n"
+                                        f"{row_out_backward['inputs']}\n"
+                                        f"targets:\n"
+                                        f"{row_out_backward['targets']}\n"
                                         f"\n"
                                     )
 
                                 # Write to the CSV.
-                                writer.writerow(row_out)
-                                rows_written += 1
+                                writer.writerow(row_out_forward)
+                                writer.writerow(row_out_backward)
+                                rows_written += 2
 
             if rows_written != split["size"]:
                 logger.error(
