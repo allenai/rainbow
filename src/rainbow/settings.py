@@ -1,5 +1,6 @@
 """Settings for rainbow."""
 
+import math
 import os
 
 
@@ -17,25 +18,19 @@ PREPROCESSED_DATASETS_DIR = os.environ["RAINBOW_PREPROCESSED_DATASETS_DIR"]
 
 # learning curve experiments
 
-LEARNING_CURVE_SIZES = [
-    None,
-    1,
-    2,
-    4,
-    7,
-    14,
-    26,
-    49,
-    92,
-    175,
-    334,
-    635,
-    1211,
-    2309,
-    4402,
-    8392,
-    16000,
-]
+LEARNING_CURVE_SIZES = (
+    [None]
+    + [
+        # exponentially space the first 1/2 of points
+        math.ceil((16000 / 6) ** ((i + 1) / 7))
+        for i in range(7)
+    ][:-1]
+    + [
+        # linearly space the second 1/2 of points
+        math.ceil(((i + 1) / 6) * 16000)
+        for i in range(6)
+    ]
+)
 """The dataset sizes at which to evaluate the learning curves."""
 
 
