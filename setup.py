@@ -9,7 +9,7 @@ with open('readme.md', 'r') as readme_file:
 
 setup(
     name='rainbow',
-    version='0.0.2',
+    version='0.0.3',
     description='Neural models of common sense.',
     long_description=readme,
     url='https://github.com/allenai/rainbow',
