@@ -2,6 +2,8 @@
 
 from typing import Dict, List
 
+import t5
+
 from . import utils
 
 
@@ -103,3 +105,301 @@ KNOWLEDGE_GRAPH_DATASETS = {
     ),
 }
 """Commonsense knowledge graph datasets."""
+
+
+GLUE_DATASETS = {
+    # CoLA
+    "cola": Dataset(
+        name="cola",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "glue_cola_v002"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "glue_cola_v002"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+    # SST2
+    "sst2": Dataset(
+        name="sst2",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "glue_sst2_v002"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "glue_sst2_v002"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+    # MRPC
+    "mrpc": Dataset(
+        name="mrpc",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "glue_mrpc_v002"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "glue_mrpc_v002"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+    # STS-B
+    "stsb": Dataset(
+        name="stsb",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "glue_stsb_v002"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "glue_stsb_v002"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+    # QQP
+    "qqp": Dataset(
+        name="qqp",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "glue_qqp_v002"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "glue_qqp_v002"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+    # MNLI
+    "mnli": Dataset(
+        name="mnli",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "glue_mnli_v002"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation_mismatched",
+                size=t5.data.get_mixture_or_task(
+                    "glue_mnli_v002"
+                ).num_input_examples("validation_mismatched"),
+            ),
+        },
+    ),
+    # QNLI
+    "qnli": Dataset(
+        name="qnli",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "glue_qnli_v002"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "glue_qnli_v002"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+    # RTE
+    "rte": Dataset(
+        name="rte",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "glue_rte_v002"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "glue_rte_v002"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+    # WNLI
+    "wnli": Dataset(
+        name="wnli",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "glue_wnli_v002"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "glue_wnli_v002"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+}
+"""GLUE datasets."""
+
+
+SUPER_GLUE_DATASETS = {
+    # BoolQ
+    "boolq": Dataset(
+        name="boolq",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_boolq_v102"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_boolq_v102"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+    # CommitmentBank
+    "cb": Dataset(
+        name="cb",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_cb_v102"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_cb_v102"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+    # COPA
+    "copa": Dataset(
+        name="copa",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_copa_v102"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_copa_v102"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+    # MultiRC
+    "multirc": Dataset(
+        name="multirc",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_multirc_v102"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_multirc_v102"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+    # ReCoRD
+    "record": Dataset(
+        name="record",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_record_v102"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_record_v102"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+    # RTE
+    "rte": Dataset(
+        name="rte",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_rte_v102"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_rte_v102"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+    # WiC
+    "wic": Dataset(
+        name="wic",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_wic_v102"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_wic_v102"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+}
+"""Super GLUE datasets."""

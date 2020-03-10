@@ -20,7 +20,7 @@ for dataset_group in [
             task_name = (
                 f"{dataset.name}_task"
                 if size is None
-                else f"{dataset.name}_{size}_task"
+                else f"{dataset.name}_{size:05}_task"
             )
             t5.data.TaskRegistry.add(
                 name=task_name,
@@ -70,7 +70,7 @@ for dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
             task_name = (
                 f"{dataset.name}_{direction}_task"
                 if size is None
-                else f"{dataset.name}_{direction}_{size}_task"
+                else f"{dataset.name}_{direction}_{size:05}_task"
             )
             targets_prefix = {"forward": "<object>", "backward": "<subject>"}[
                 direction

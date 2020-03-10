@@ -1,0 +1,13 @@
+#! /usr/bin/env python
+
+"""List all registered tasks."""
+
+import t5
+
+import rainbow
+# N.B. This script must import rainbow to register the tasks.
+
+all_tasks = t5.data.utils.TaskRegistry.names()
+
+print(f'Listing {len(all_tasks)} tasks:\n')
+print('  ' + '\n  '.join(sorted(all_tasks)) + '\n')
