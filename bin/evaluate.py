@@ -24,8 +24,10 @@ logger = logging.getLogger(__name__)
     "--batch-size",
     type=int,
     default=64,
-    help="The batch size to use for prediction. For efficient prediction on the"
-    " TPU, choose a multiple of either 8 or 128. Defaults to 64.",
+    help=(
+        "The batch size to use for prediction. For efficient prediction on the"
+        " TPU, choose a multiple of either 8 or 128. Defaults to 64."
+    ),
 )
 @click.option(
     "--model-parallelism",
@@ -38,14 +40,19 @@ logger = logging.getLogger(__name__)
     type=str,
     required=True,
     envvar="TPU_NAME",
-    help="The name of the TPU. Defaults to the TPU_NAME environment variable.",
+    help=(
+        "The name of the TPU. Defaults to the TPU_NAME environment variable."
+    ),
 )
 @click.option(
     "--tpu-topology",
     type=str,
     required=True,
     envvar="TPU_TOPOLOGY",
-    help="The topology of the TPU. Defaults to the TPU_TOPOLOGY environment variable.",
+    help=(
+        "The topology of the TPU. Defaults to the TPU_TOPOLOGY environment"
+        " variable."
+    ),
 )
 def evaluate(
     mixture: str,

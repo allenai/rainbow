@@ -51,8 +51,10 @@ PRETRAINED_MODELS = {
     "--batch-size",
     type=int,
     default=16,
-    help="The batch size to use for training. For efficient training on the"
-    " TPU, choose a multiple of either 8 or 128. Defaults to 16.",
+    help=(
+        "The batch size to use for training. For efficient training on the"
+        " TPU, choose a multiple of either 8 or 128. Defaults to 16."
+    ),
 )
 @click.option(
     "--model-parallelism",
@@ -64,14 +66,19 @@ PRETRAINED_MODELS = {
     "--save-checkpoints-steps",
     type=int,
     default=5000,
-    help="The number of steps to take before saving a checkpoint. Defaults to"
-    " 5000.",
+    help=(
+        "The number of steps to take before saving a checkpoint. Defaults to"
+        " 5000."
+    ),
 )
 @click.option(
     "--n-checkpoints-to-keep",
     type=int,
     default=4,
-    help="The number of checkpoints to keep during fine-tuning. Defaults to 4.",
+    help=(
+        "The number of checkpoints to keep during fine-tuning. Defaults"
+        " to 4."
+    ),
 )
 @click.option(
     "--tpu-name",
@@ -85,7 +92,10 @@ PRETRAINED_MODELS = {
     type=str,
     required=True,
     envvar="TPU_TOPOLOGY",
-    help="The topology of the TPU. Defaults to the TPU_TOPOLOGY environment variable.",
+    help=(
+        "The topology of the TPU. Defaults to the TPU_TOPOLOGY environment"
+        " variable."
+    ),
 )
 def fine_tune(
     mixture: str,

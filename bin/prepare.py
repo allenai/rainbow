@@ -19,23 +19,30 @@ logger = logging.getLogger(__name__)
     type=str,
     required=True,
     envvar="RAINBOW_DATASETS_DIR",
-    help="The directory to which to download all the relevant"
-    " datasets. Defaults to the RAINBOW_DATASETS_DIR environment variable.",
+    help=(
+        "The directory to which to download all the relevant"
+        " datasets. Defaults to the RAINBOW_DATASETS_DIR environment"
+        " variable."
+    ),
 )
 @click.option(
     "--dst",
     type=str,
     required=True,
     envvar="RAINBOW_PREPROCESSED_DATASETS_DIR",
-    help="The directory to which to write the preprocessed dataset"
-    " files. Defaults to the RAINBOW_PREPROCESSED_DATASETS_DIR environment"
-    " variable.",
+    help=(
+        "The directory to which to write the preprocessed dataset"
+        " files. Defaults to the RAINBOW_PREPROCESSED_DATASETS_DIR environment"
+        " variable."
+    ),
 )
 @click.option(
     "--force-download",
     is_flag=True,
-    help="Force downloads of all the datasets, otherwise only missing datasets"
-    " will be downloaded.",
+    help=(
+        "Force downloads of all the datasets, otherwise only missing datasets"
+        " will be downloaded."
+    ),
 )
 def prepare(src: str, dst: str, force_download: bool) -> None:
     """Prepare all relevant datasets for text-to-text modeling.
