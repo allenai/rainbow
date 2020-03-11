@@ -51,7 +51,7 @@ def prepare(src: str, dst: str, force_download: bool) -> None:
     CSVs suitable for text-to-text models, then write the results to
     --dst. Google storage paths are supported.
     """
-    utils.configure_logging()
+    utils.configure_logging(clear=True)
 
     # Validate the arguments.
 

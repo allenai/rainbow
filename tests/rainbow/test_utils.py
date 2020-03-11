@@ -42,6 +42,62 @@ class ConfigureLoggingTestCase(unittest.TestCase):
 
         logging.root.removeHandler(handler)
 
+    def test_does_not_remove_handlers_when_clear_is_false(self):
+        # Clear all log handlers from the root to prepare for the test.
+        handlers = logging.root.handlers[:]
+        for handler in handlers:
+            logging.root.removeHandler(handler)
+
+        # Run the test.
+        self.assertEqual(len(logging.root.handlers), 0)
+
+        logging.basicConfig()
+        basic_handler = logging.root.handlers[0]
+
+        self.assertEqual(len(logging.root.handlers), 1)
+
+        handler = utils.configure_logging(clear=False)
+
+        self.assertIn(basic_handler, logging.root.handlers)
+        self.assertIn(handler, logging.root.handlers)
+        self.assertEqual(len(logging.root.handlers), 2)
+
+        # Restore the log handlers.
+        #   First, remove the existing handlers.
+        for handler in logging.root.handlers:
+            logging.root.removeHandler(handler)
+        #   Next, add back the initial handlers.
+        for handler in handlers:
+            logging.root.addHandler(handler)
+
+    def test_does_remove_handlers_when_clear_is_true(self):
+        # Clear all log handlers from the root to prepare for the test.
+        handlers = logging.root.handlers[:]
+        for handler in handlers:
+            logging.root.removeHandler(handler)
+
+        # Run the test.
+        self.assertEqual(len(logging.root.handlers), 0)
+
+        logging.basicConfig()
+        basic_handler = logging.root.handlers[0]
+
+        self.assertEqual(len(logging.root.handlers), 1)
+
+        handler = utils.configure_logging(clear=True)
+
+        self.assertNotIn(basic_handler, logging.root.handlers)
+        self.assertIn(handler, logging.root.handlers)
+        self.assertEqual(len(logging.root.handlers), 1)
+
+        # Restore the log handlers.
+        #   First, remove the existing handlers.
+        for handler in logging.root.handlers:
+            logging.root.removeHandler(handler)
+        #   Next, add back the initial handlers.
+        for handler in handlers:
+            logging.root.addHandler(handler)
+
 
 class FileLoggingTestCase(unittest.TestCase):
     """Test rainbow.utils.FileLogging."""

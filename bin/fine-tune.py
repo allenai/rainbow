@@ -8,6 +8,8 @@ import click
 import t5
 import tensorflow as tf
 
+from rainbow import utils
+
 import rainbow.mixtures
 
 # N.B. We must import rainbow.mixtures here so that the mixtures are registered
@@ -111,6 +113,7 @@ def fine_tune(
     tpu_topology: str,
 ) -> None:
     """Fine-tune the model on MIXTURE, writing results to RESULTS_DIR."""
+    utils.configure_logging(clear=True)
 
     # Validate arguments.
 

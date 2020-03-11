@@ -8,6 +8,8 @@ import click
 import t5
 import tensorflow as tf
 
+from rainbow import utils
+
 import rainbow.mixtures
 
 # N.B. We must import rainbow.mixtures here so that the mixtures are registered
@@ -63,6 +65,7 @@ def evaluate(
     tpu_topology: str,
 ) -> None:
     """Evaluate the model located at RESULTS_DIR on MIXTURE."""
+    utils.configure_logging(clear=True)
 
     # Validate arguments.
 

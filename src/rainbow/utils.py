@@ -9,7 +9,9 @@ import attr
 from . import settings
 
 
-def configure_logging(verbose: bool = False) -> logging.Handler:
+def configure_logging(
+    verbose: bool = False, clear: bool = False
+) -> logging.Handler:
     """Configure logging and return the log handler.
 
     This function is useful in scripts when logging should be set up
@@ -19,12 +21,19 @@ def configure_logging(verbose: bool = False) -> logging.Handler:
     ----------
     verbose : bool, optional (default=False)
         If ``True`` set the log level to DEBUG, else set it to INFO.
+    clear : bool, optional (default=False)
+        If ``True``, remove all existing log handlers attached to the
+        logging root before attaching the new log handler.
 
     Returns
     -------
     logging.Handler
         The log handler set up by this function.
     """
+    if clear:
+        for handler in logging.root.handlers:
+            logging.root.removeHandler(handler)
+
     # unset the log level from root (defaults to WARNING)
     logging.root.setLevel(logging.NOTSET)
 
