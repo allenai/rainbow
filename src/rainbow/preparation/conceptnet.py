@@ -67,7 +67,7 @@ class ConceptNetPreparer(preparer.Preparer):
         # Prepare the splits.
         for split in self.CONCEPTNET["splits"].values():
             rows_written = 0
-            for file_ in split["files"]:
+            for file_idx, file_ in enumerate(split["files"]):
                 src_path = os.path.join(
                     src, self.CONCEPTNET["name"], file_["file_name"]
                 )
@@ -114,7 +114,9 @@ class ConceptNetPreparer(preparer.Preparer):
                                 dataset=self.CONCEPTNET["name"],
                             ),
                         )
-                        with tf.io.gfile.GFile(dst_path, "a") as dst_file:
+                        with tf.io.gfile.GFile(
+                            dst_path, "a" if file_idx > 0 else "w"
+                        ) as dst_file:
                             writer = csv.DictWriter(
                                 dst_file,
                                 fieldnames=["index", "inputs", "targets"],
