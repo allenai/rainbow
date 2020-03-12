@@ -44,6 +44,17 @@ LEARNING_CURVE_SIZES = (
 """The dataset sizes at which to evaluate the learning curves."""
 
 
+# knowledge graph directionality experiments
+
+KNOWLEDGE_GRAPH_DIRECTIONS = ["forward", "backward", "bidirectional"]
+"""The directions for commonsense KB completion.
+
+Forward predicts the ``object`` from the ``subject`` and ``relation``.
+Backward predicts the ``subject`` from the ``object`` and ``relation``.
+Bidirectional predicts both.
+"""
+
+
 # logging and output
 
 LOG_FORMAT = "%(asctime)s:%(levelname)s:%(name)s: %(message)s"

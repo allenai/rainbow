@@ -8,26 +8,30 @@ from . import core, datasets, settings, tasks
 # the tasks in their definitions.
 
 
-# Create the individual task mixtures.
+# Create the individual rainbow task mixtures.
+for dataset in datasets.RAINBOW_DATASETS.values():
+    for size in settings.LEARNING_CURVE_SIZES:
+        base_name = (
+            f"{dataset.name}" if size is None else f"{dataset.name}_{size:05}"
+        )
+        t5.data.MixtureRegistry.add(
+            f"{base_name}_mixture", [f"{base_name}_task"], default_rate=1.0
+        )
 
-for dataset_group in [
-    datasets.RAINBOW_DATASETS,
-    datasets.KNOWLEDGE_GRAPH_DATASETS,
-]:
-    for dataset in dataset_group.values():
-        for size in settings.LEARNING_CURVE_SIZES:
+# Create the individual knowledge graph task mixtures
+for dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
+    for size in settings.LEARNING_CURVE_SIZES:
+        for direction in settings.KNOWLEDGE_GRAPH_DIRECTIONS:
             base_name = (
-                f"{dataset.name}"
+                f"{dataset.name}_{direction}"
                 if size is None
-                else f"{dataset.name}_{size:05}"
+                else f"{dataset.name}_{direction}_{size:05}"
             )
             t5.data.MixtureRegistry.add(
                 f"{base_name}_mixture", [f"{base_name}_task"], default_rate=1.0
             )
 
-
 # Create the Rainbow mixtures.
-
 t5.data.MixtureRegistry.add(
     "rainbow_equal_mixture",
     [f"{dataset.name}_task" for dataset in datasets.RAINBOW_DATASETS.values()],
@@ -40,21 +44,12 @@ t5.data.MixtureRegistry.add(
     default_rate=core.proportional_rate,
 )
 
-
-# Create the knowledge graph mixtures.
-
-# Create mixtures with knowledge graphs.
+# Create mixtures with rainbow and a single knowledge graph.
 for dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
-    for direction in ["forward", "backward", "bidirectional"]:
-        base_name = (
-            f"{dataset.name}"
-            if direction == "bidirectional"
-            else f"{dataset.name}_{direction}"
-        )
-
+    for direction in settings.KNOWLEDGE_GRAPH_DIRECTIONS:
         t5.data.MixtureRegistry.add(
-            f"rainbow_{base_name}_equal_mixture",
-            [f"{base_name}_task"]
+            f"rainbow_{dataset.name}_{direction}_equal_mixture",
+            [f"{dataset.name}_{direction}_task"]
             + [
                 f"{rainbow_dataset.name}_task"
                 for rainbow_dataset in datasets.RAINBOW_DATASETS.values()
@@ -63,8 +58,8 @@ for dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
         )
 
         t5.data.MixtureRegistry.add(
-            f"rainbow_{base_name}_proportional_mixture",
-            [f"{base_name}_task"]
+            f"rainbow_{dataset.name}_{direction}_proportional_mixture",
+            [f"{dataset.name}_{direction}_task"]
             + [
                 f"{rainbow_dataset.name}_task"
                 for rainbow_dataset in datasets.RAINBOW_DATASETS.values()
@@ -72,17 +67,13 @@ for dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
             default_rate=core.proportional_rate,
         )
 
-# Create mixtures with all knowledge graphs.
-for direction in ["forward", "backward", "bidirectional"]:
+# Create mixtures with rainbow and all knowledge graphs.
+for direction in settings.KNOWLEDGE_GRAPH_DIRECTIONS:
     t5.data.MixtureRegistry.add(
-        "rainbow_comet_equal_mixture"
-        if direction == "bidirectional"
-        else f"rainbow_comet_{direction}_equal_mixture",
+        f"rainbow_comet_{direction}_equal_mixture",
         [
             # include the knowledge graphs
-            f"{dataset.name}_task"
-            if direction == "bidirectional"
-            else f"{dataset.name}_{direction}_task"
+            f"{dataset.name}_{direction}_task"
             for dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values()
         ]
         + [
@@ -94,14 +85,10 @@ for direction in ["forward", "backward", "bidirectional"]:
     )
 
     t5.data.MixtureRegistry.add(
-        "rainbow_comet_proportional_mixture"
-        if direction == "bidirectional"
-        else f"rainbow_comet_{direction}_proportional_mixture",
+        f"rainbow_comet_{direction}_proportional_mixture",
         [
             # include the knowledge graphs
-            f"{dataset.name}_task"
-            if direction == "bidirectional"
-            else f"{dataset.name}_{direction}_task"
+            f"{dataset.name}_{direction}_task"
             for dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values()
         ]
         + [
@@ -112,9 +99,7 @@ for direction in ["forward", "backward", "bidirectional"]:
         default_rate=core.proportional_rate,
     )
 
-
 # Create the Rainbow multi-tasking learning curve mixtures.
-
 for dataset in datasets.RAINBOW_DATASETS.values():
     for size in settings.LEARNING_CURVE_SIZES:
         if size is None:
@@ -142,9 +127,7 @@ for dataset in datasets.RAINBOW_DATASETS.values():
             default_rate=core.proportional_rate,
         )
 
-
 # Create the GLUE multi-tasking learning curve mixtures.
-
 for dataset in datasets.RAINBOW_DATASETS.values():
     for size in settings.LEARNING_CURVE_SIZES:
         if size is None:
@@ -170,9 +153,7 @@ for dataset in datasets.RAINBOW_DATASETS.values():
             default_rate=core.proportional_rate,
         )
 
-
 # Create the Super GLUE multi-tasking learning curve mixtures.
-
 for dataset in datasets.RAINBOW_DATASETS.values():
     for size in settings.LEARNING_CURVE_SIZES:
         if size is None:
