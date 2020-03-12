@@ -70,9 +70,13 @@ for dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
             )
 
             if direction == "forward":
-                predicate = lambda x: x["targets"].startswith("<object>")
+                predicate = lambda x: tf.strings.regex_full_match(
+                    x["targets"], r"^<object>.*"
+                )
             elif direction == "backward":
-                predicate = lambda x: x["targets"].startswith("<subject>")
+                predicate = lambda x: tf.strings.regex_full_match(
+                    x["targets"], r"^<subject>.*"
+                )
             elif direction == "bidirectional":
                 predicate = lambda x: True
             else:
