@@ -44,6 +44,34 @@ for rate_name, rate_func in rates.MIXING_RATES.items():
         default_rate=rate_func,
     )
 
+# Create knowledge graph-only mixtures with a single knowledge graph.
+for rainbow_dataset in datasets.RAINBOW_DATASETS.values():
+    for kg_dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
+        for direction in settings.KNOWLEDGE_GRAPH_DIRECTIONS:
+            for rate_name, rate_func in rates.MIXING_RATES.items():
+                t5.data.MixtureRegistry.add(
+                    f"{rainbow_dataset.name}_{kg_dataset.name}_{direction}_{rate_name}_mixture",
+                    [
+                        f"{rainbow_dataset.name}_task",
+                        f"{kg_dataset.name}_{direction}_task",
+                    ],
+                    default_rate=rate_func,
+                )
+
+# Create knowledge graph-only mixtures with all knowledge graphs.
+for rainbow_dataset in datasets.RAINBOW_DATASETS.values():
+    for direction in settings.KNOWLEDGE_GRAPH_DIRECTIONS:
+        for rate_name, rate_func in rates.MIXING_RATES.items():
+            t5.data.MixtureRegistry.add(
+                f"{rainbow_dataset.name}_comet_{direction}_{rate_name}_mixture",
+                [f"{rainbow_dataset.name}_task"]
+                + [
+                    f"{kg_dataset.name}_{direction}_task"
+                    for kg_dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values()
+                ],
+                default_rate=rate_func,
+            )
+
 # Create mixtures with rainbow and a single knowledge graph.
 for dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
     for direction in settings.KNOWLEDGE_GRAPH_DIRECTIONS:
