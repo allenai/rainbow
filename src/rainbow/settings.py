@@ -3,6 +3,8 @@
 import math
 import os
 
+import t5
+
 
 # dataset preprocessing
 
@@ -14,6 +16,14 @@ DATASETS_DIR = os.environ["RAINBOW_DATASETS_DIR"]
 
 PREPROCESSED_DATASETS_DIR = os.environ["RAINBOW_PREPROCESSED_DATASETS_DIR"]
 """The directory containing preprocessed splits for the rainbow datasets."""
+
+
+# tensorflow datasets configuration
+
+TFDS_DATASETS_DIR = os.environ["RAINBOW_TFDS_DATASETS_DIR"]
+"""The directory for storing the TFDS datasets."""
+# Configure T5 to use TFDS_DATASETS_DIR.
+t5.data.set_tfds_data_dir_override(TFDS_DATASETS_DIR)
 
 
 # learning curve experiments
