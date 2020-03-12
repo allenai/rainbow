@@ -15,6 +15,8 @@ Next, make sure you have the following environment variables set:
 1. `RAINBOW_DATASETS_DIR`: The directory for storing all relevant datasets.
 2. `RAINBOW_PREPROCESSED_DATASETS_DIR`: The directory for storing the
    preprocessed dataset split files.
+3. `RAINBOW_TFDS_DATASETS_DIR`: The directory for storing the TFDS
+   (tensorflow datasets) datasets.
 
 Training requires TPUs. For training, all directories should point to Google
 Cloud Storage prefixes. Additionally, you'll need the following environment
