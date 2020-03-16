@@ -122,7 +122,9 @@ class ConceptNetPreparer(preparer.Preparer):
                                 fieldnames=["index", "inputs", "targets"],
                                 dialect="unix",
                             )
-                            writer.writeheader()
+                            if file_idx == 0:
+                                # only write the header once
+                                writer.writeheader()
 
                             reader = csv.reader(src_gunzipped, delimiter="\t")
 
