@@ -46,31 +46,43 @@ for rate_name, rate_func in rates.MIXING_RATES.items():
 
 # Create knowledge graph-only mixtures with a single knowledge graph.
 for rainbow_dataset in datasets.RAINBOW_DATASETS.values():
-    for kg_dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
-        for direction in settings.KNOWLEDGE_GRAPH_DIRECTIONS:
-            for rate_name, rate_func in rates.MIXING_RATES.items():
-                t5.data.MixtureRegistry.add(
-                    f"{rainbow_dataset.name}_{kg_dataset.name}_{direction}_{rate_name}_mixture",
-                    [
-                        f"{rainbow_dataset.name}_task",
-                        f"{kg_dataset.name}_{direction}_task",
-                    ],
-                    default_rate=rate_func,
-                )
+    for size in settings.LEARNING_CURVE_SIZES:
+        for kg_dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
+            for direction in settings.KNOWLEDGE_GRAPH_DIRECTIONS:
+                for rate_name, rate_func in rates.MIXING_RATES.items():
+                    t5.data.MixtureRegistry.add(
+                        f"{rainbow_dataset.name}_{kg_dataset.name}_{direction}_{rate_name}_mixture"
+                        if size is None
+                        else f"{rainbow_dataset.name}_{size:05}_{kg_dataset.name}_{direction}_{rate_name}_mixture",
+                        [
+                            f"{rainbow_dataset.name}_task"
+                            if size is None
+                            else f"{rainbow_dataset.name}_{size:05}_task",
+                            f"{kg_dataset.name}_{direction}_task",
+                        ],
+                        default_rate=rate_func,
+                    )
 
 # Create knowledge graph-only mixtures with all knowledge graphs.
 for rainbow_dataset in datasets.RAINBOW_DATASETS.values():
-    for direction in settings.KNOWLEDGE_GRAPH_DIRECTIONS:
-        for rate_name, rate_func in rates.MIXING_RATES.items():
-            t5.data.MixtureRegistry.add(
-                f"{rainbow_dataset.name}_comet_{direction}_{rate_name}_mixture",
-                [f"{rainbow_dataset.name}_task"]
-                + [
-                    f"{kg_dataset.name}_{direction}_task"
-                    for kg_dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values()
-                ],
-                default_rate=rate_func,
-            )
+    for size in settings.LEARNING_CURVE_SIZES:
+        for direction in settings.KNOWLEDGE_GRAPH_DIRECTIONS:
+            for rate_name, rate_func in rates.MIXING_RATES.items():
+                t5.data.MixtureRegistry.add(
+                    f"{rainbow_dataset.name}_comet_{direction}_{rate_name}_mixture"
+                    if size is None
+                    else f"{rainbow_dataset.name}_{size:05}_comet_{direction}_{rate_name}_mixture",
+                    [
+                        f"{rainbow_dataset.name}_task"
+                        if size is None
+                        else f"{rainbow_dataset.name}_{size:05}_task"
+                    ]
+                    + [
+                        f"{kg_dataset.name}_{direction}_task"
+                        for kg_dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values()
+                    ],
+                    default_rate=rate_func,
+                )
 
 # Create mixtures with rainbow and a single knowledge graph.
 for dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
@@ -104,6 +116,56 @@ for direction in settings.KNOWLEDGE_GRAPH_DIRECTIONS:
             default_rate=rate_func,
         )
 
+# Create learning curve mixtures with rainbow and a single knowledge graph
+for rainbow_dataset in datasets.RAINBOW_DATASETS.values():
+    for size in settings.LEARNING_CURVE_SIZES:
+        if size is None:
+            continue
+
+        for kg_dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
+            for direction in settings.KNOWLEDGE_GRAPH_DIRECTIONS:
+                for rate_name, rate_func in rates.MIXING_RATES.items():
+                    t5.data.MixtureRegistry.add(
+                        f"{rainbow_dataset.name}_{size:05}_rainbow"
+                        f"_{kg_dataset.name}_{direction}_{rate_name}_mixture",
+                        [
+                            f"{rainbow_dataset.name}_{size:05}_task",
+                            f"{kg_dataset.name}_{direction}_task",
+                        ]
+                        + [
+                            f"{other_dataset.name}_task"
+                            for other_dataset in datasets.RAINBOW_DATASETS.values()
+                            if other_dataset != rainbow_dataset
+                        ],
+                        default_rate=rate_func,
+                    )
+
+# Create learning curve mixtures with rainbow and all knowledge graphs
+for rainbow_dataset in datasets.RAINBOW_DATASETS.values():
+    for size in settings.LEARNING_CURVE_SIZES:
+        if size is None:
+            continue
+
+        for direction in settings.KNOWLEDGE_GRAPH_DIRECTIONS:
+            for rate_name, rate_func in rates.MIXING_RATES.items():
+                t5.data.MixtureRegistry.add(
+                    f"{rainbow_dataset.name}_{size:05}_rainbow"
+                    f"_comet_{direction}_{rate_name}_mixture",
+                    [f"{rainbow_dataset.name}_{size:05}_task"]
+                    + [
+                        # include knowledge graphs
+                        f"{dataset.name}_{direction}_task"
+                        for dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values()
+                    ]
+                    + [
+                        # include other rainbow tasks
+                        f"{dataset.name}_task"
+                        for dataset in datasets.RAINBOW_DATASETS.values()
+                        if dataset != rainbow_dataset
+                    ],
+                    default_rate=rate_func,
+                )
+
 # Create the Rainbow multi-tasking learning curve mixtures.
 for dataset in datasets.RAINBOW_DATASETS.values():
     for size in settings.LEARNING_CURVE_SIZES:
@@ -125,13 +187,16 @@ for dataset in datasets.RAINBOW_DATASETS.values():
 # Create the GLUE multi-tasking learning curve mixtures.
 for dataset in datasets.RAINBOW_DATASETS.values():
     for size in settings.LEARNING_CURVE_SIZES:
-        if size is None:
-            continue
-
         for rate_name, rate_func in rates.MIXING_RATES.items():
             t5.data.MixtureRegistry.add(
-                f"{dataset.name}_{size:05}_glue_{rate_name}_mixture",
-                [f"{dataset.name}_{size:05}_task"]
+                f"{dataset.name}_glue_{rate_name}_mixture"
+                if size is None
+                else f"{dataset.name}_{size:05}_glue_{rate_name}_mixture",
+                [
+                    f"{dataset.name}_task"
+                    if size is None
+                    else f"{dataset.name}_{size:05}_task"
+                ]
                 + [
                     f"glue_{glue_dataset.name}_v002"
                     for glue_dataset in datasets.GLUE_DATASETS.values()
@@ -142,13 +207,16 @@ for dataset in datasets.RAINBOW_DATASETS.values():
 # Create the Super GLUE multi-tasking learning curve mixtures.
 for dataset in datasets.RAINBOW_DATASETS.values():
     for size in settings.LEARNING_CURVE_SIZES:
-        if size is None:
-            continue
-
         for rate_name, rate_func in rates.MIXING_RATES.items():
             t5.data.MixtureRegistry.add(
-                f"{dataset.name}_{size:05}_super_glue_{rate_name}_mixture",
-                [f"{dataset.name}_{size:05}_task"]
+                f"{dataset.name}_super_glue_{rate_name}_mixture"
+                if size is None
+                else f"{dataset.name}_{size:05}_super_glue_{rate_name}_mixture",
+                [
+                    f"{dataset.name}_task"
+                    if size is None
+                    else f"{dataset.name}_{size:05}_task"
+                ]
                 + [
                     f"super_glue_{super_glue_dataset.name}_v102"
                     for super_glue_dataset in datasets.SUPER_GLUE_DATASETS.values()
