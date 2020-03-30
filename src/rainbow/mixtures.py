@@ -125,13 +125,16 @@ for dataset in datasets.RAINBOW_DATASETS.values():
 # Create the GLUE multi-tasking learning curve mixtures.
 for dataset in datasets.RAINBOW_DATASETS.values():
     for size in settings.LEARNING_CURVE_SIZES:
-        if size is None:
-            continue
-
         for rate_name, rate_func in rates.MIXING_RATES.items():
             t5.data.MixtureRegistry.add(
-                f"{dataset.name}_{size:05}_glue_{rate_name}_mixture",
-                [f"{dataset.name}_{size:05}_task"]
+                f"{dataset.name}_glue_{rate_name}_mixture"
+                if size is None
+                else f"{dataset.name}_{size:05}_glue_{rate_name}_mixture",
+                [
+                    f"{dataset.name}_task"
+                    if size is None
+                    else f"{dataset.name}_{size:05}_task"
+                ]
                 + [
                     f"glue_{glue_dataset.name}_v002"
                     for glue_dataset in datasets.GLUE_DATASETS.values()
@@ -142,13 +145,16 @@ for dataset in datasets.RAINBOW_DATASETS.values():
 # Create the Super GLUE multi-tasking learning curve mixtures.
 for dataset in datasets.RAINBOW_DATASETS.values():
     for size in settings.LEARNING_CURVE_SIZES:
-        if size is None:
-            continue
-
         for rate_name, rate_func in rates.MIXING_RATES.items():
             t5.data.MixtureRegistry.add(
-                f"{dataset.name}_{size:05}_super_glue_{rate_name}_mixture",
-                [f"{dataset.name}_{size:05}_task"]
+                f"{dataset.name}_super_glue_{rate_name}_mixture"
+                if size is None
+                else f"{dataset.name}_{size:05}_super_glue_{rate_name}_mixture",
+                [
+                    f"{dataset.name}_task"
+                    if size is None
+                    else f"{dataset.name}_{size:05}_task"
+                ]
                 + [
                     f"super_glue_{super_glue_dataset.name}_v102"
                     for super_glue_dataset in datasets.SUPER_GLUE_DATASETS.values()
