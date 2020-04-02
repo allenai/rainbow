@@ -44,6 +44,19 @@ for rate_name, rate_func in rates.MIXING_RATES.items():
         default_rate=rate_func,
     )
 
+# Create leave-one-out Rainbow mixtures.
+for dataset in datasets.RAINBOW_DATASETS.values():
+    for rate_name, rate_func in rates.MIXING_RATES.items():
+        t5.data.MixtureRegistry.add(
+            f"{dataset.name}_00000_rainbow_{rate_name}_mixture",
+            [
+                f"{other_dataset.name}_task"
+                for other_dataset in datasets.RAINBOW_DATASETS.values()
+                if other_dataset != dataset
+            ],
+            default_rate=rate_func,
+        )
+
 # Create knowledge graph-only mixtures with a single knowledge graph.
 for rainbow_dataset in datasets.RAINBOW_DATASETS.values():
     for size in settings.LEARNING_CURVE_SIZES:
