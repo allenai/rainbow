@@ -20,6 +20,22 @@ for dataset in datasets.RAINBOW_DATASETS.values():
             f"{base_name}_mixture", [f"{base_name}_task"], default_rate=1.0
         )
 
+# Create paired rainbow task mixtures.
+for dataset1 in datasets.RAINBOW_DATASETS.values():
+    for size in settings.LEARNING_CURVE_SIZES:
+        for dataset2 in datasets.RAINBOW_DATASETS.values():
+            for rate_name, rate_func in rates.MIXING_RATES.items():
+                dataset1_base_name = (
+                    f"{dataset1.name}"
+                    if size is None
+                    else f"{dataset1.name}_{size:05}"
+                )
+                t5.data.MixtureRegistry.add(
+                    f"{dataset1_base_name}_{dataset2.name}_{rate_name}_mixture",
+                    [f"{dataset1_base_name}_task", f"{dataset2.name}_task"],
+                    default_rate=rate_func,
+                )
+
 # Create the individual knowledge graph task mixtures
 for dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
     for size in settings.LEARNING_CURVE_SIZES:
@@ -43,6 +59,19 @@ for rate_name, rate_func in rates.MIXING_RATES.items():
         ],
         default_rate=rate_func,
     )
+
+# Create leave-one-out Rainbow mixtures.
+for dataset in datasets.RAINBOW_DATASETS.values():
+    for rate_name, rate_func in rates.MIXING_RATES.items():
+        t5.data.MixtureRegistry.add(
+            f"{dataset.name}_00000_rainbow_{rate_name}_mixture",
+            [
+                f"{other_dataset.name}_task"
+                for other_dataset in datasets.RAINBOW_DATASETS.values()
+                if other_dataset != dataset
+            ],
+            default_rate=rate_func,
+        )
 
 # Create knowledge graph-only mixtures with a single knowledge graph.
 for rainbow_dataset in datasets.RAINBOW_DATASETS.values():
