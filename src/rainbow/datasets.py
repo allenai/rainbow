@@ -403,3 +403,42 @@ SUPER_GLUE_DATASETS = {
     ),
 }
 """Super GLUE datasets."""
+
+
+COMMONSENSE_DATASETS = {
+    # CommonsenseQA
+    "commonsenseqa": Dataset(
+        name="commonsenseqa",
+        splits={
+            "train": Split(name="train", size=9471),
+            "validation": Split(name="validation", size=1221),
+        },
+    ),
+    # JHU Ordinal Commonsense Inference
+    "joci": Dataset(
+        name="joci",
+        splits={
+            "train": Split(name="train", size=34092),
+            "validation": Split(name="validation", size=2500),
+        },
+    ),
+    # ReCoRD
+    "record": Dataset(
+        name="record",
+        splits={
+            "train": Split(
+                name="train",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_record_v102"
+                ).num_input_examples("train"),
+            ),
+            "validation": Split(
+                name="validation",
+                size=t5.data.get_mixture_or_task(
+                    "super_glue_record_v102"
+                ).num_input_examples("validation"),
+            ),
+        },
+    ),
+}
+"""Commonsense datasets besides rainbow."""
