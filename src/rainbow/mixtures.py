@@ -252,3 +252,55 @@ for dataset in datasets.RAINBOW_DATASETS.values():
                 ],
                 default_rate=rate_func,
             )
+
+
+# Create rainbow external evaluation mixtures.
+for dataset in datasets.COMMONSENSE_DATASETS.values():
+    for size in settings.LEARNING_CURVE_SIZES:
+        for rate_name, rate_func in rates.MIXING_RATES.items():
+            base_name = (
+                dataset.name if size is None else f"{dataset.name}_{size:05}"
+            )
+            t5.data.MixtureRegistry.add(
+                f"{base_name}_rainbow_{rate_name}_mixture",
+                [f"{base_name}_task"]
+                + [
+                    f"{rainbow_dataset.name}_task"
+                    for rainbow_dataset in datasets.RAINBOW_DATASETS.values()
+                ],
+                default_rate=rate_func,
+            )
+
+# Create GLUE external evaluation mixtures.
+for dataset in datasets.COMMONSENSE_DATASETS.values():
+    for size in settings.LEARNING_CURVE_SIZES:
+        for rate_name, rate_func in rates.MIXING_RATES.items():
+            base_name = (
+                dataset.name if size is None else f"{dataset.name}_{size:05}"
+            )
+            t5.data.MixtureRegistry.add(
+                f"{base_name}_glue_{rate_name}_mixture",
+                [f"{base_name}_task"]
+                + [
+                    f"glue_{glue_dataset.name}_v002"
+                    for glue_dataset in datasets.GLUE_DATASETS.values()
+                ],
+                default_rate=rate_func,
+            )
+
+# Create Super GLUE external evaluation mixtures.
+for dataset in datasets.COMMONSENSE_DATASETS.values():
+    for size in settings.LEARNING_CURVE_SIZES:
+        for rate_name, rate_func in rates.MIXING_RATES.items():
+            base_name = (
+                dataset.name if size is None else f"{dataset.name}_{size:05}"
+            )
+            t5.data.MixtureRegistry.add(
+                f"{base_name}_super_glue_{rate_name}_mixture",
+                [f"{base_name}_task"]
+                + [
+                    f"super_glue_{super_glue_dataset.name}_v102"
+                    for super_glue_dataset in datasets.SUPER_GLUE_DATASETS.values()
+                ],
+                default_rate=rate_func,
+            )
