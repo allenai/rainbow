@@ -426,18 +426,8 @@ COMMONSENSE_DATASETS = {
     "record": Dataset(
         name="record",
         splits={
-            "train": Split(
-                name="train",
-                size=t5.data.get_mixture_or_task(
-                    "super_glue_record_v102"
-                ).num_input_examples("train"),
-            ),
-            "validation": Split(
-                name="validation",
-                size=t5.data.get_mixture_or_task(
-                    "super_glue_record_v102"
-                ).num_input_examples("validation"),
-            ),
+            "train": Split(name="train", size=257863),
+            "validation": Split(name="validation", size=29949),
         },
     ),
 }
