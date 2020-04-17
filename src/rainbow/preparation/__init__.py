@@ -1,3 +1,12 @@
 """Dataset Preparation."""
 
-from . import atomic, commonsenseqa, conceptnet, joci, preparer, rainbow, utils
+from . import (
+    atomic,
+    commonsenseqa,
+    conceptnet,
+    joci,
+    preparer,
+    rainbow,
+    record,
+    utils,
+)
