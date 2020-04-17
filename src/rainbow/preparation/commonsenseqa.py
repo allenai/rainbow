@@ -27,7 +27,7 @@ class CommonsenseQAPreparer(preparer.Preparer):
         "splits": {
             "train": {
                 "name": "train",
-                "size": 9471,
+                "size": 9741,
                 "url": "https://s3.amazonaws.com/commensenseqa/train_rand_split.jsonl",
                 "checksum": "58ffa3c8472410e24b8c43f423d89c8a003d8284698a6ed7874355dedd09a2fb",
                 "file_name": "train_rand_split.jsonl",

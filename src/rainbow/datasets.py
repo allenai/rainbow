@@ -410,7 +410,7 @@ COMMONSENSE_DATASETS = {
     "commonsenseqa": Dataset(
         name="commonsenseqa",
         splits={
-            "train": Split(name="train", size=9471),
+            "train": Split(name="train", size=9741),
             "validation": Split(name="validation", size=1221),
         },
     ),
