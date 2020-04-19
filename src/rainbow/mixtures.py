@@ -36,7 +36,7 @@ for dataset1 in datasets.RAINBOW_DATASETS.values():
                     default_rate=rate_func,
                 )
 
-# Create the individual knowledge graph task mixtures
+# Create the individual knowledge graph task mixtures.
 for dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
     for size in settings.LEARNING_CURVE_SIZES:
         for direction in settings.KNOWLEDGE_GRAPH_DIRECTIONS:
@@ -48,6 +48,16 @@ for dataset in datasets.KNOWLEDGE_GRAPH_DATASETS.values():
             t5.data.MixtureRegistry.add(
                 f"{base_name}_mixture", [f"{base_name}_task"], default_rate=1.0
             )
+
+# Create the individual external commonsense datasets mixtures.
+for dataset in datasets.COMMONSENSE_DATASETS.values():
+    for size in settings.LEARNING_CURVE_SIZES:
+        base_name = (
+            f"{dataset.name}" if size is None else f"{dataset.name}_{size:05}"
+        )
+        t5.data.MixtureRegistry.add(
+            f"{base_name}_mixture", [f"{base_name}_task"], default_rate=1.0
+        )
 
 # Create the Rainbow mixtures.
 for rate_name, rate_func in rates.MIXING_RATES.items():
