@@ -70,6 +70,28 @@ for rate_name, rate_func in rates.MIXING_RATES.items():
         default_rate=rate_func,
     )
 
+# Create the GLUE mixtures.
+for rate_name, rate_func in rates.MIXING_RATES.items():
+    t5.data.MixtureRegistry.add(
+        f"glue_{rate_name}_mixture",
+        [
+            f"glue_{glue_dataset.name}_v002"
+            for glue_dataset in datasets.GLUE_DATASETS.values()
+        ],
+        default_rate=rate_func,
+    )
+
+# Create the Super GLUE mixtures.
+for rate_name, rate_func in rates.MIXING_RATES.items():
+    t5.data.MixtureRegistry.add(
+        f"super_glue_{rate_name}_mixture",
+        [
+            f"super_glue_{super_glue_dataset.name}_v102"
+            for super_glue_dataset in datasets.SUPER_GLUE_DATASETS.values()
+        ],
+        default_rate=rate_func,
+    )
+
 # Create leave-one-out Rainbow mixtures.
 for dataset in datasets.RAINBOW_DATASETS.values():
     for rate_name, rate_func in rates.MIXING_RATES.items():
