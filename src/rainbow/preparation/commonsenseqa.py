@@ -39,6 +39,13 @@ class CommonsenseQAPreparer(preparer.Preparer):
                 "checksum": "3210497fdaae614ac085d9eb873dd7f4d49b6f965a93adadc803e1229fd8a02a",
                 "file_name": "dev_rand_split.jsonl",
             },
+            "test": {
+                "name": "test",
+                "size": 1140,
+                "url": "https://s3.amazonaws.com/commensenseqa/test_rand_split_no_answers.jsonl",
+                "checksum": "b426896d71a9cd064cf01cfaf6e920817c51701ef66028883ac1af2e73ad5f29",
+                "file_name": "test_rand_split.jsonl",
+            },
         },
     }
     """Configuration data for CommonsenseQA."""
@@ -113,7 +120,7 @@ class CommonsenseQAPreparer(preparer.Preparer):
                             choice["label"]: choice["text"]
                             for choice in row_in["question"]["choices"]
                         }
-                        label = row_in["answerKey"]
+                        label = row_in.get("answerKey", "")
 
                         row_out = {
                             "index": rows_written,
@@ -128,7 +135,7 @@ class CommonsenseQAPreparer(preparer.Preparer):
                             ),
                             "targets": label,
                         }
-                        if i == 0:
+                        if i == 0 and split["name"] != "test":
                             logger.info(
                                 f"\n\n"
                                 f"Example {row_out['index']} from"
