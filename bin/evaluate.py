@@ -23,6 +23,12 @@ logger = logging.getLogger(__name__)
 @click.argument("mixture", type=str)
 @click.argument("results_dir", type=str)
 @click.option(
+    "--split",
+    type=str,
+    default="validation",
+    help="The split on which to evaluate. Defaults to 'validation'.",
+)
+@click.option(
     "--batch-size",
     type=int,
     default=64,
@@ -59,6 +65,7 @@ logger = logging.getLogger(__name__)
 def evaluate(
     mixture: str,
     results_dir: str,
+    split: str,
     batch_size: int,
     model_parallelism: int,
     tpu_name: str,
@@ -89,7 +96,9 @@ def evaluate(
         iterations_per_loop=100,
     )
 
-    model.eval(mixture_or_task_name=mixture, checkpoint_steps="all")
+    model.eval(
+        mixture_or_task_name=mixture, checkpoint_steps="all", split=split,
+    )
 
 
 if __name__ == "__main__":
