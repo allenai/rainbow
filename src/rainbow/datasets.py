@@ -412,6 +412,7 @@ COMMONSENSE_DATASETS = {
         splits={
             "train": Split(name="train", size=9741),
             "validation": Split(name="validation", size=1221),
+            "test": Split(name="test", size=1140),
         },
     ),
     # JHU Ordinal Commonsense Inference
