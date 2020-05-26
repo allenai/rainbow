@@ -29,6 +29,12 @@ logger = logging.getLogger(__name__)
     help="The split on which to evaluate. Defaults to 'validation'.",
 )
 @click.option(
+    "--checkpoint-steps",
+    type=str,
+    default="all",
+    help="The checkpoint steps on which to evaluate. Defaults to 'all'.",
+)
+@click.option(
     "--batch-size",
     type=int,
     default=64,
@@ -66,6 +72,7 @@ def evaluate(
     mixture: str,
     results_dir: str,
     split: str,
+    checkpoint_steps: str,
     batch_size: int,
     model_parallelism: int,
     tpu_name: str,
@@ -97,7 +104,9 @@ def evaluate(
     )
 
     model.eval(
-        mixture_or_task_name=mixture, checkpoint_steps="all", split=split,
+        mixture_or_task_name=mixture,
+        checkpoint_steps=checkpoint_steps,
+        split=split,
     )
 
 
