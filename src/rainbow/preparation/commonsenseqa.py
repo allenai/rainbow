@@ -120,7 +120,7 @@ class CommonsenseQAPreparer(preparer.Preparer):
                             choice["label"]: choice["text"]
                             for choice in row_in["question"]["choices"]
                         }
-                        label = row_in.get("answerKey", "")
+                        label = row_in.get("answerKey", "N/A")
 
                         row_out = {
                             "index": rows_written,
