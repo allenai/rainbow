@@ -431,5 +431,13 @@ COMMONSENSE_DATASETS = {
             "validation": Split(name="validation", size=29949),
         },
     ),
+    # CycIC
+    "cyc": Dataset(
+        name="cyc",
+        splits={
+            "train": Split(name="train", size=10678),
+            "validation": Split(name="validation", size=1525),
+        },
+    ),
 }
 """Commonsense datasets besides rainbow."""
