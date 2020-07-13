@@ -437,6 +437,7 @@ COMMONSENSE_DATASETS = {
         splits={
             "train": Split(name="train", size=10678),
             "validation": Split(name="validation", size=1525),
+            "test": Split(name="test", size=3051),
         },
     ),
 }
