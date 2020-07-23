@@ -40,6 +40,7 @@ RAINBOW_DATASETS = {
         splits={
             "train": Split(name="train", size=169654),
             "validation": Split(name="validation", size=1532),
+            "test": Split(name="test", size=3040),
         },
     ),
     # CosmosQA
@@ -48,6 +49,7 @@ RAINBOW_DATASETS = {
         splits={
             "train": Split(name="train", size=25262),
             "validation": Split(name="validation", size=2985),
+            "test": Split(name="test", size=6963),
         },
     ),
     # HellaSWAG
@@ -56,6 +58,7 @@ RAINBOW_DATASETS = {
         splits={
             "train": Split(name="train", size=39905),
             "validation": Split(name="validation", size=10042),
+            "test": Split(name="test", size=10050),
         },
     ),
     # PhysicalIQA
@@ -64,6 +67,7 @@ RAINBOW_DATASETS = {
         splits={
             "train": Split(name="train", size=16113),
             "validation": Split(name="validation", size=1838),
+            "test": Split(name="test", size=3446),
         },
     ),
     # SocialIQA
@@ -72,6 +76,7 @@ RAINBOW_DATASETS = {
         splits={
             "train": Split(name="train", size=33410),
             "validation": Split(name="validation", size=1954),
+            "test": Split(name="test", size=2059),
         },
     ),
     # WinoGrande
@@ -80,6 +85,7 @@ RAINBOW_DATASETS = {
         splits={
             "train": Split(name="train", size=40398),
             "validation": Split(name="validation", size=1267),
+            "test": Split(name="test", size=1767),
         },
     ),
 }
