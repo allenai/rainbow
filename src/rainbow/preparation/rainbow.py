@@ -289,7 +289,7 @@ class RainbowPreparer(preparer.Preparer):
             archives={
                 "main": RainbowArchive(
                     url="gs://ai2-mosaic/public/winogrande/winogrande_1.1.zip",
-                    checksum="d5699402a41de2b4e6b3c6e2a1e6b4faab2130543a12019a8c5d4f35ec502d47",
+                    checksum="db997e35f11b014043531e7cd7ef30591022fd5946063e1e1e1416963d342fa5",
                     file_name="winogrande_1.1.zip",
                     splits=["train", "validation", "test"],
                 )
