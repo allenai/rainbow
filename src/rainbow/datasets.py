@@ -84,6 +84,11 @@ RAINBOW_DATASETS = {
         name="winogrande",
         splits={
             "train": Split(name="train", size=40398),
+            "train_xs": Split(name="train_xs", size=160),
+            "train_s": Split(name="train_s", size=640),
+            "train_m": Split(name="train_m", size=2558),
+            "train_l": Split(name="train_l", size=10234),
+            "train_xl": Split(name="train_xl", size=40398),
             "validation": Split(name="validation", size=1267),
             "test": Split(name="test", size=1767),
         },
