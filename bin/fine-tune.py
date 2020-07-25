@@ -32,6 +32,12 @@ PRETRAINED_MODELS = {
 @click.argument("mixture", type=str)
 @click.argument("results_dir", type=str)
 @click.option(
+    "--split",
+    type=str,
+    default="train",
+    help="The split on which to train. Defaults to 'train'.",
+)
+@click.option(
     "--pretrained-model",
     type=str,
     default="3B",
@@ -102,6 +108,7 @@ PRETRAINED_MODELS = {
 def fine_tune(
     mixture: str,
     results_dir: str,
+    split: str,
     pretrained_model: str,
     n_steps: int,
     learning_rate: float,
@@ -157,6 +164,7 @@ def fine_tune(
         mixture_or_task_name=mixture,
         pretrained_model_dir=pretrained_model,
         finetune_steps=n_steps,
+        split=split,
     )
 
 
