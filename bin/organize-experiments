@@ -1,0 +1,214 @@
+#! /usr/bin/env bash
+
+# Usage: organize-experiments $SRC $DST
+#
+# Organize the Rainbow experiments.
+#
+# Copy the experiments from SRC to DST, organizing them into a better
+# directory structure.
+
+set -e
+
+
+# constants
+
+SIZES="small base large"
+TASKS="anli cosmosqa hellaswag physicaliqa socialiqa winogrande"
+EXTERNAL_TASKS="commonsenseqa joci"
+MULTISETS="rainbow glue super-glue"
+KNOWLEDGE_GRAPHS="atomic conceptnet comet"
+KNOWLEDGE_GRAPH_MIXTURES="knowledge-graph rainbow-knowledge-graph"
+RATES="equal proportional"
+DIRECTIONS="forward backward bidirectional"
+LRS="4e-3 1e-3 2.5e-4"
+
+
+# helper functions
+
+function copy() {
+    # Ensure the destination directory exists.
+    mkdir --parents $(dirname "$2")
+    # Copy the first argument into the second argument.
+    cp            \
+        --archive \
+        $1 $2
+}
+
+
+# main script
+
+SRC="$1"
+DST="$2"
+
+# LEARNING CURVES
+
+# EFFECT OF SIZE
+for size in $SIZES; do
+    for task in $TASKS; do
+        for lr in $LRS; do
+            mkdir \
+                --parents \
+                "${DST}/rainbow-experiments/effect-of-size/mixtures/t5/${size}/${task}/rainbow/equal/lr-${lr}/validation_eval"
+            cp \
+                ${SRC}/experiments/t5/${size}/mixtures/rainbow/equal/lr-${lr}/validation_eval/${task}* \
+                "${DST}/rainbow-experiments/effect-of-size/mixtures/t5/${size}/${task}/rainbow/equal/lr-${lr}/validation_eval/"
+        done
+    done
+    copy \
+        "${SRC}/experiments/t5/${size}/external-learning-curves/single-task/commonsenseqa" \
+        "${DST}/rainbow-experiments/effect-of-size/learning-curves/t5/${size}/commonsenseqa/single-task"
+    copy \
+        "${SRC}/experiments/t5/${size}/external-learning-curves/rainbow/commonsenseqa" \
+        "${DST}/rainbow-experiments/effect-of-size/learning-curves/t5/${size}/commonsenseqa/rainbow/multi-task"
+    find \
+        "${DST}/rainbow-experiments/effect-of-size/learning-curves/t5/${size}/commonsenseqa/rainbow/multi-task" \
+        -type f -print \
+        | grep -vE "[[:digit:]]{5}_task" \
+        | xargs -n 1 --no-run-if-empty rm
+    copy \
+        "${SRC}/experiments/t5/${size}/external-sequential-fine-tune/rainbow/learning-curves/commonsenseqa" \
+        "${DST}/rainbow-experiments/effect-of-size/learning-curves/t5/${size}/commonsenseqa/rainbow/sequential-fine-tune"
+    copy \
+        "${SRC}/experiments/t5/${size}/external-multi-task-fine-tune/rainbow/learning-curves/commonsenseqa" \
+        "${DST}/rainbow-experiments/effect-of-size/learning-curves/t5/${size}/commonsenseqa/rainbow/multi-task-fine-tune"
+done
+
+# TRANSFERRING MULTISETS
+for task in $TASKS; do
+    for multiset in $MULTISETS; do
+        copy \
+            "${SRC}/experiments/t5/large/learning-curves/${multiset}/${task}" \
+            "${DST}/rainbow-experiments/transferring-multisets/learning-curves/t5/large/${task}/${multiset}/multi-task"
+        find \
+            "${DST}/rainbow-experiments/transferring-multisets/learning-curves/t5/large/${task}/${multiset}/multi-task" \
+            -type f -print \
+            | grep -vE "[[:digit:]]{5}_task" \
+            | xargs -n 1 --no-run-if-empty rm
+        copy \
+            "${SRC}/experiments/t5/large/sequential-fine-tune/${multiset}/learning-curves/${task}" \
+            "${DST}/rainbow-experiments/transferring-multisets/learning-curves/t5/large/${task}/${multiset}/sequential-fine-tune"
+        copy \
+            "${SRC}/experiments/t5/large/multi-task-fine-tune/${multiset}/learning-curves/${task}" \
+            "${DST}/rainbow-experiments/transferring-multisets/learning-curves/t5/large/${task}/${multiset}/multi-task-fine-tune"
+    done
+    copy \
+        "${SRC}/experiments/t5/large/learning-curves/single-task/${task}" \
+        "${DST}/rainbow-experiments/transferring-multisets/learning-curves/t5/large/${task}/single-task"
+done
+
+# TRANSFERRING KNOWLEDGE GRAPHS
+for task in $TASKS; do
+    for knowledge_graph_mixture in $KNOWLEDGE_GRAPH_MIXTURES; do
+        for knowledge_graph in $KNOWLEDGE_GRAPHS; do
+            copy \
+                "${SRC}/experiments/t5/large/learning-curves/${knowledge_graph_mixture}/${knowledge_graph}/${task}" \
+                "${DST}/rainbow-experiments/transferring-knowledge-graphs/learning-curves/t5/large/${task}/${knowledge_graph_mixture}/${knowledge_graph}/multi-task"
+            find \
+                "${DST}/rainbow-experiments/transferring-knowledge-graphs/learning-curves/t5/large/${task}/${knowledge_graph_mixture}/${knowledge_graph}/multi-task" \
+                -type f -print \
+                | grep -vE "[[:digit:]]{5}_task" \
+                | xargs -n 1 --no-run-if-empty rm
+        done
+    done
+    copy \
+        "${SRC}/experiments/t5/large/learning-curves/single-task/${task}" \
+        "${DST}/rainbow-experiments/transferring-knowledge-graphs/learning-curves/t5/large/${task}/single-task"
+done
+
+# TRANSFERRING TO EXTENAL TASKS
+for task in $EXTERNAL_TASKS; do
+    for multiset in $MULTISETS; do
+        copy \
+            "${SRC}/experiments/t5/large/external-learning-curves/${multiset}/${task}" \
+            "${DST}/rainbow-experiments/transferring-to-external-tasks/learning-curves/t5/large/${task}/${multiset}/multi-task"
+        find \
+            "${DST}/rainbow-experiments/transferring-to-external-tasks/learning-curves/t5/large/${task}/${multiset}/multi-task" \
+            -type f -print \
+            | grep -vE "[[:digit:]]{5}_task" \
+            | xargs -n 1 --no-run-if-empty rm
+    done
+    copy \
+        "${SRC}/experiments/t5/large/external-learning-curves/single-task/${task}" \
+        "${DST}/rainbow-experiments/transferring-to-external-tasks/learning-curves/t5/large/${task}/single-task"
+done
+
+# FULL TASKS
+
+# TRANSFERRING MULTISETS
+for task in $TASKS; do
+    for multiset in $MULTISETS; do
+        for rate in $RATES; do
+            if [ $multiset == "rainbow" ]; then
+                for lr in $LRS; do
+                    mkdir \
+                        --parents \
+                        "${DST}/rainbow-experiments/transferring-multisets/full-tasks/t5/large/${task}/rainbow/multi-task/${rate}/lr-${lr}/validation_eval"
+                    cp \
+                        ${SRC}/experiments/t5/large/mixtures/rainbow/${rate}/lr-${lr}/validation_eval/${task}* \
+                        "${DST}/rainbow-experiments/transferring-multisets/full-tasks/t5/large/${task}/rainbow/multi-task/${rate}/lr-${lr}/validation_eval/"
+                done
+            else
+                copy \
+                    "${SRC}/experiments/t5/large/mixtures/${multiset}/${rate}/${task}" \
+                    "${DST}/rainbow-experiments/transferring-multisets/full-tasks/t5/large/${task}/${multiset}/multi-task/${rate}"
+            fi
+            copy \
+                "${SRC}/experiments/t5/large/sequential-fine-tune/${multiset}/full-tasks/${rate}/${task}" \
+                "${DST}/rainbow-experiments/transferring-multisets/full-tasks/t5/large/${task}/${multiset}/sequential-fine-tune/${rate}"
+            copy \
+                "${SRC}/experiments/t5/large/multi-task-fine-tune/${multiset}/full-tasks/${rate}/${task}" \
+                "${DST}/rainbow-experiments/transferring-multisets/full-tasks/t5/large/${task}/${multiset}/multi-task-fine-tune/${rate}"
+        done
+    done
+    copy \
+        "${SRC}/experiments/t5/large/mixtures/single-task/${task}" \
+        "${DST}/rainbow-experiments/transferring-multisets/full-tasks/t5/large/${task}/single-task"
+done
+
+# TRANSFERRING KNOWLEDGE GRAPHS
+for task in $TASKS; do
+    for knowledge_graph_mixture in $KNOWLEDGE_GRAPH_MIXTURES; do
+        for knowledge_graph in $KNOWLEDGE_GRAPHS; do
+            for direction in $DIRECTIONS; do
+                for rate in $RATES; do
+                    if [ $knowledge_graph_mixture == "rainbow-knowledge-graph" ]; then
+                        for lr in $LRS; do
+                            mkdir \
+                                --parents \
+                                "${DST}/rainbow-experiments/transferring-knowledge-graphs/full-tasks/t5/large/${task}/${knowledge_graph_mixture}/${knowledge_graph}/${direction}/multi-task/${rate}/lr-${lr}/validation_eval"
+                            cp \
+                                ${SRC}/experiments/t5/large/mixtures/${knowledge_graph_mixture}/${knowledge_graph}/${direction}/${rate}/lr-${lr}/validation_eval/${task}* \
+                                "${DST}/rainbow-experiments/transferring-knowledge-graphs/full-tasks/t5/large/${task}/${knowledge_graph_mixture}/${knowledge_graph}/${direction}/multi-task/${rate}/lr-${lr}/validation_eval/"
+                        done
+                    else
+                        copy \
+                            "${SRC}/experiments/t5/large/mixtures/${knowledge_graph_mixture}/${knowledge_graph}/${direction}/${rate}/${task}" \
+                            "${DST}/rainbow-experiments/transferring-knowledge-graphs/full-tasks/t5/large/${task}/${knowledge_graph_mixture}/${knowledge_graph}/${direction}/multi-task/${rate}"
+                    fi
+                done
+            done
+        done
+    done
+    copy \
+        "${SRC}/experiments/t5/large/mixtures/single-task/${task}" \
+        "${DST}/rainbow-experiments/transferring-knowledge-graphs/full-tasks/t5/large/${task}/single-task"
+done
+
+# TRANSFERRING TO EXTENAL TASKS
+for task in $EXTERNAL_TASKS; do
+    for multiset in $MULTISETS; do
+        for rate in $RATES; do
+            copy \
+                "${SRC}/experiments/t5/large/external-mixtures/${multiset}/${rate}/${task}" \
+                "${DST}/rainbow-experiments/transferring-to-external-tasks/full-tasks/t5/large/${task}/${multiset}/multi-task/${rate}"
+            find \
+                "${DST}/rainbow-experiments/transferring-to-external-tasks/full-tasks/t5/large/${task}/${multiset}/multi-task/${rate}" \
+                -type f -print \
+                | grep -vE "${task}_task" \
+                | xargs -n 1 --no-run-if-empty rm
+        done
+    done
+    copy \
+        "${SRC}/experiments/t5/large/external-mixtures/single-task/${task}" \
+        "${DST}/rainbow-experiments/transferring-to-external-tasks/full-tasks/t5/large/${task}/single-task"
+done
