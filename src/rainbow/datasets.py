@@ -434,14 +434,6 @@ COMMONSENSE_DATASETS = {
             "validation": Split(name="validation", size=2500),
         },
     ),
-    # ReCoRD
-    "record": Dataset(
-        name="record",
-        splits={
-            "train": Split(name="train", size=257863),
-            "validation": Split(name="validation", size=29949),
-        },
-    ),
     # CycIC
     "cyc": Dataset(
         name="cyc",

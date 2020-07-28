@@ -80,10 +80,6 @@ def prepare(src: str, dst: str, force_download: bool) -> None:
         src=src, dst=dst, force_download=force_download
     )
 
-    preparation.record.ReCoRDPreparer().prepare(
-        src=src, dst=dst, force_download=force_download
-    )
-
     preparation.cyc.CycICPreparer().prepare(
         src=src, dst=dst, force_download=force_download
     )
