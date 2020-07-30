@@ -26,7 +26,8 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
             "columns_to_drop": ["multiset", "rate", "split"],
             "column_renames": {"model_size": "model", "best_score": "accuracy"},
             "column_to_split_tables": None,
-            "columns_for_index": ["model", "lr"],
+            "columns_to_aggregate": ["lr"],
+            "columns_for_index": ["model"],
             "column_for_pivot": "task",
         },
         # the multiset learning curves tables
@@ -38,7 +39,8 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
                 "best_score": "accuracy",
             },
             "column_to_split_tables": None,
-            "columns_for_index": ["model", "transfer", "lr"],
+            "columns_to_aggregate": ["lr"],
+            "columns_for_index": ["model", "transfer"],
             "column_for_pivot": "size",
         },
         # the single-task learning curves
@@ -46,7 +48,8 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
             "columns_to_drop": ["task", "multiset", "split"],
             "column_renames": {"model_size": "model", "best_score": "accuracy"},
             "column_to_split_tables": None,
-            "columns_for_index": ["model", "lr"],
+            "columns_to_aggregate": ["lr"],
+            "columns_for_index": ["model"],
             "column_for_pivot": "size",
         },
     },
@@ -58,8 +61,9 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
                 "transfer_method": "transfer",
                 "best_score": "accuracy",
             },
-            "column_to_split_tables": "multiset",
-            "columns_for_index": ["rate", "transfer", "lr"],
+            "column_to_split_tables": None,
+            "columns_to_aggregate": ["rate", "lr"],
+            "columns_for_index": ["multiset", "transfer"],
             "column_for_pivot": "task",
         },
         # the multiset learning curves tables
@@ -70,7 +74,8 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
                 "best_score": "accuracy",
             },
             "column_to_split_tables": "task",
-            "columns_for_index": ["multiset", "transfer", "lr"],
+            "columns_to_aggregate": ["lr"],
+            "columns_for_index": ["multiset", "transfer"],
             "column_for_pivot": "size",
         },
         # the single task full tasks tables
@@ -78,7 +83,8 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
             "columns_to_drop": ["model_size", "multiset", "split"],
             "column_renames": {"best_score": "accuracy"},
             "column_to_split_tables": None,
-            "columns_for_index": ["lr"],
+            "columns_to_aggregate": ["lr"],
+            "columns_for_index": [],
             "column_for_pivot": "task",
         },
         # the single task learning curves tables
@@ -86,7 +92,8 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
             "columns_to_drop": ["model_size", "multiset", "split"],
             "column_renames": {"best_score": "accuracy"},
             "column_to_split_tables": None,
-            "columns_for_index": ["task", "lr"],
+            "columns_to_aggregate": ["lr"],
+            "columns_for_index": ["task"],
             "column_for_pivot": "size",
         },
     },
@@ -96,7 +103,8 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
             "columns_to_drop": ["model_size", "transfer_method", "split"],
             "column_renames": {"best_score": "accuracy"},
             "column_to_split_tables": None,
-            "columns_for_index": ["multiset", "rate", "lr"],
+            "columns_to_aggregate": ["rate", "lr"],
+            "columns_for_index": ["multiset"],
             "column_for_pivot": "task",
         },
         # the multiset learning curves tables
@@ -104,7 +112,8 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
             "columns_to_drop": ["model_size", "transfer_method", "split"],
             "column_renames": {"best_score": "accuracy"},
             "column_to_split_tables": None,
-            "columns_for_index": ["task", "multiset", "lr"],
+            "columns_to_aggregate": ["lr"],
+            "columns_for_index": ["task", "multiset"],
             "column_for_pivot": "size",
         },
         # the single task full tasks tables
@@ -112,7 +121,8 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
             "columns_to_drop": ["model_size", "multiset", "split"],
             "column_renames": {"best_score": "accuracy"},
             "column_to_split_tables": None,
-            "columns_for_index": ["lr"],
+            "columns_to_aggregate": ["lr"],
+            "columns_for_index": [],
             "column_for_pivot": "task",
         },
         # the single task learning curves tables
@@ -120,7 +130,8 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
             "columns_to_drop": ["model_size", "multiset", "split"],
             "column_renames": {"best_score": "accuracy"},
             "column_to_split_tables": None,
-            "columns_for_index": ["task", "lr"],
+            "columns_to_aggregate": ["lr"],
+            "columns_for_index": ["task"],
             "column_for_pivot": "size",
         },
     },
@@ -132,8 +143,9 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
                 "knowledge-graph": "knowledge",
                 "best_score": "accuracy",
             },
-            "column_to_split_tables": "multiset",
-            "columns_for_index": ["rate", "knowledge", "direction", "lr"],
+            "column_to_split_tables": None,
+            "columns_to_aggregate": ["rate", "lr"],
+            "columns_for_index": ["multiset", "knowledge", "direction"],
             "column_for_pivot": "task",
         },
         # the multiset learning curves tables
@@ -144,7 +156,8 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
                 "best_score": "accuracy",
             },
             "column_to_split_tables": "task",
-            "columns_for_index": ["multiset", "knowledge", "lr"],
+            "columns_to_aggregate": ["lr"],
+            "columns_for_index": ["multiset", "knowledge"],
             "column_for_pivot": "size",
         },
         # the single task full tasks tables
@@ -152,7 +165,8 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
             "columns_to_drop": ["model_size", "multiset", "split"],
             "column_renames": {"best_score": "accuracy"},
             "column_to_split_tables": None,
-            "columns_for_index": ["lr"],
+            "columns_to_aggregate": ["lr"],
+            "columns_for_index": [],
             "column_for_pivot": "task",
         },
         # the single task learning curves tables
@@ -160,7 +174,8 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
             "columns_to_drop": ["model_size", "multiset", "split"],
             "column_renames": {"best_score": "accuracy"},
             "column_to_split_tables": None,
-            "columns_for_index": ["task", "lr"],
+            "columns_to_aggregate": ["lr"],
+            "columns_for_index": ["task"],
             "column_for_pivot": "size",
         },
     },
@@ -178,6 +193,7 @@ def write_latex_tables_for_config(
     columns_to_drop: List[str],
     column_renames: Dict[str, str],
     column_to_split_tables: Optional[str],
+    columns_to_aggregate: List[str],
     columns_for_index: List[str],
     column_for_pivot: str,
 ) -> None:
@@ -191,15 +207,19 @@ def write_latex_tables_for_config(
         The path to the destination directory.
     table_name : str, required
         The name of the table.
-    column_to_split_tables : Optional[str], required
-        The column whose values should be used for splitting the raw
-        table into separate latex tables.
     columns_to_drop : List[str], required
         Columns to drop from the raw table.
     column_renames : Dict[str], required
         A dictionary mapping column names to new names.
+    column_to_split_tables : Optional[str], required
+        The column whose values should be used for splitting the raw
+        table into separate latex tables.
     columns_for_index : List[str], required
         The list of columns to use as the index for the table.
+    columns_to_aggregate : List[str], required
+        The columns to aggregate over by taking the max. These columns
+        should be the (less interesting) hyper-parameters that were
+        optimized over.
     column_for_pivot: str, required
         The column to pivot on for using as the table's final columns.
 
@@ -272,7 +292,23 @@ def write_latex_tables_for_config(
             else df
         )
 
-        subdf = subdf.set_index(columns_for_index)
+        subdf = (
+            subdf.groupby(
+                [
+                    col
+                    for col in subdf.columns
+                    if col not in columns_to_aggregate and col != "accuracy"
+                ]
+            )
+            .max()
+            .reset_index()
+        )
+        if len(columns_for_index) == 0:
+            # Use a new, blank column as the index.
+            subdf[""] = ""
+            subdf = subdf.set_index([""])
+        else:
+            subdf = subdf.set_index(columns_for_index)
         subdf = subdf.pivot(index=subdf.index, columns=column_for_pivot)[
             "accuracy"
         ]
