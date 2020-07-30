@@ -241,24 +241,32 @@ def write_latex_tables_for_config(
     if "task" in df:
         df["task"] = df["task"].apply(
             lambda x: {
-                "anli": "aNLI",
-                "hellaswag": "HellaSWAG",
-                "cosmosqa": "CosmosQA",
-                "physicaliqa": "PIQA",
-                "socialiqa": "SocialIQa",
-                "winogrande": "WinoGrande",
-                "commonsenseqa": "CommonsenseQA",
-                "joci": "JOCI",
+                "anli": r"\anli{}",
+                "hellaswag": r"\hellaswag{}",
+                "cosmosqa": r"\cosmosqa{}",
+                "physicaliqa": r"\physicaliqa{}",
+                "socialiqa": r"\socialiqa{}",
+                "winogrande": r"\winogrande{}",
+                "commonsenseqa": r"\commonsenseqa{}",
+                "joci": r"\joci{}",
             }[x]
         )
     if "multiset" in df:
         df["multiset"] = df["multiset"].apply(
             lambda x: {
-                "rainbow": "Rainbow",
-                "glue": "GLUE",
-                "super-glue": "SuperGLUE",
-                "knowledge-graph": "None",
-                "rainbow-knowledge-graph": "Rainbow",
+                "rainbow": r"\rainbow{}",
+                "glue": r"\glue{}",
+                "super-glue": r"\superglue{}",
+                "knowledge-graph": r"\none{}",
+                "rainbow-knowledge-graph": r"\rainbow{}",
+            }[x]
+        )
+    if "knowledge" in df:
+        df["knowledge"] = df["knowledge"].apply(
+            lambda x: {
+                "atomic": r"\atomic{}",
+                "conceptnet": r"\conceptnet{}",
+                "comet": r"\both{}",
             }[x]
         )
     if "rate" in df:
@@ -312,9 +320,7 @@ def write_latex_tables_for_config(
         subdf = subdf.pivot(index=subdf.index, columns=column_for_pivot)[
             "accuracy"
         ]
-        subdf = subdf.rename(
-            columns=lambda col: f"\textbf{{\textsc{{\small{{{col}}}}}}}"
-        )
+        subdf = subdf.rename(columns=lambda col: fr"\small{{{col}}}")
 
         table_str_lns = subdf.to_latex(
             buf=None,
@@ -353,8 +359,9 @@ def write_latex_tables_for_config(
             ).groups()[0],
         ]
 
+        subtable_slug = re.sub(r"[\\{}]", "", str(subtable)).lower().strip()
         table_path = os.path.join(
-            dst_dpath, f"{subtable.lower()}.{table_name}.tex"
+            dst_dpath, f"{subtable_slug}.{table_name}.tex"
         )
         with open(table_path, "w") as fout:
             fout.write("\n".join(table_str_lns))
@@ -373,7 +380,11 @@ def write_latex_tables_for_config(
 def generate_latex_tables(src: str, dst: str) -> None:
     """Generate latex tables from Rainbow's raw tables.
 
-    Read the raw tables from SRC and write out latex tables to DST.
+    Read the raw tables from SRC and write out latex tables to DST. The
+    generated tables assume the document has macros for \anli{},
+    \cosmosqa{}, \hellaswag{}, \physicaliqa{}, \socialiqa{},
+    \winogrande{}, \commonsenseqa{}, \joci{}, \rainbow{}, \glue{},
+    \superglue{}, \none{}, \atomic{}, \conceptnet{}, and \both{}.
     """
     utils.configure_logging(clear=True)
 
