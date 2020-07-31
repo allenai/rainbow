@@ -80,11 +80,11 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
         },
         # the single task full tasks tables
         "single-task_full-tasks": {
-            "columns_to_drop": ["model_size", "multiset", "split"],
-            "column_renames": {"best_score": "accuracy"},
+            "columns_to_drop": ["multiset", "split"],
+            "column_renames": {"model_size": "model", "best_score": "accuracy"},
             "column_to_split_tables": None,
             "columns_to_aggregate": ["lr"],
-            "columns_for_index": [],
+            "columns_for_index": ["model"],
             "column_for_pivot": "task",
         },
         # the single task learning curves tables
@@ -118,11 +118,11 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
         },
         # the single task full tasks tables
         "single-task_full-tasks": {
-            "columns_to_drop": ["model_size", "multiset", "split"],
-            "column_renames": {"best_score": "accuracy"},
+            "columns_to_drop": ["multiset", "split"],
+            "column_renames": {"model_size": "model", "best_score": "accuracy"},
             "column_to_split_tables": None,
             "columns_to_aggregate": ["lr"],
-            "columns_for_index": [],
+            "columns_for_index": ["model"],
             "column_for_pivot": "task",
         },
         # the single task learning curves tables
@@ -162,11 +162,11 @@ EXPERIMENT_TO_LATEX_TABLE_CONFIG = {
         },
         # the single task full tasks tables
         "single-task_full-tasks": {
-            "columns_to_drop": ["model_size", "multiset", "split"],
-            "column_renames": {"best_score": "accuracy"},
+            "columns_to_drop": ["multiset", "split"],
+            "column_renames": {"model_size": "model", "best_score": "accuracy"},
             "column_to_split_tables": None,
             "columns_to_aggregate": ["lr"],
-            "columns_for_index": [],
+            "columns_for_index": ["model"],
             "column_for_pivot": "task",
         },
         # the single task learning curves tables
@@ -311,12 +311,7 @@ def write_latex_tables_for_config(
             .max()
             .reset_index()
         )
-        if len(columns_for_index) == 0:
-            # Use a new, blank column as the index.
-            subdf[""] = ""
-            subdf = subdf.set_index([""])
-        else:
-            subdf = subdf.set_index(columns_for_index)
+        subdf = subdf.set_index(columns_for_index)
         subdf = subdf.pivot(index=subdf.index, columns=column_for_pivot)[
             "accuracy"
         ]
