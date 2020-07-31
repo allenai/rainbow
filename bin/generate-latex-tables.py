@@ -266,7 +266,7 @@ def write_latex_tables_for_config(
             lambda x: {
                 "atomic": r"\atomic{}",
                 "conceptnet": r"\conceptnet{}",
-                "comet": r"\both{}",
+                "comet": r"\together{}",
             }[x]
         )
     if "rate" in df:
@@ -379,7 +379,7 @@ def generate_latex_tables(src: str, dst: str) -> None:
     generated tables assume the document has macros for \anli{},
     \cosmosqa{}, \hellaswag{}, \physicaliqa{}, \socialiqa{},
     \winogrande{}, \commonsenseqa{}, \joci{}, \rainbow{}, \glue{},
-    \superglue{}, \none{}, \atomic{}, \conceptnet{}, and \both{}.
+    \superglue{}, \none{}, \atomic{}, \conceptnet{}, and \together{}.
     """
     utils.configure_logging(clear=True)
 
