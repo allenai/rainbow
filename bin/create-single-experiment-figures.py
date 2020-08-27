@@ -1,13 +1,13 @@
 #! /usr/bin/env python
 
-"""Create figures for the Rainbow results."""
+"""Create single experiment figures for the Rainbow results."""
 
+import dataclasses
 import logging
 import os
-from typing import Callable, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import click
-import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
@@ -56,7 +56,7 @@ def plot_training_curves(
     fig_col : Optional[str], optional (default=None)
         An optional column to use for determining the columns of
         subfigures that the curves will then reside in.
-    fig_col : Optional[Callable], optional (default=None)
+    fig_col_fmt : Optional[Callable], optional (default=None)
         A function to format figure column labels.
 
     Returns
@@ -81,9 +81,10 @@ def plot_training_curves(
     fig, axes = plt.subplots(
         nrows=n_rows,
         ncols=n_cols,
-        figsize=(6 * n_cols - 1, 6 * n_rows - 1),
+        figsize=(6 * n_cols, 6 * n_rows),
         sharex=True,
         sharey=True,
+        constrained_layout=True,
     )
     # Modify axes so we can access the axis objects in a uniform way,
     # regardless of the number of rows or columns.
@@ -123,22 +124,18 @@ def plot_training_curves(
             axes[row_idx][col_idx].legend()
 
     for row_idx, row_label in enumerate(row_labels):
+        # Set the label for the row.
         ax2 = axes[row_idx][-1].twinx()
         ax2.set_ylabel(fig_row_fmt(row_label), rotation=270, va="bottom")
         ax2.set_yticks([])
+        # Set the label for the y-axis.
+        axes[row_idx][0].set_ylabel("accuracy")
 
     for col_idx, col_label in enumerate(col_labels):
+        # Set the label for the column.
         axes[0][col_idx].set_title(fig_col_fmt(col_label))
-
-    fig.text(x=0.5, y=0.03, s="step", ha="center", va="center")
-    fig.text(
-        x=0.03,
-        y=0.5,
-        s="accuracy",
-        ha="center",
-        va="center",
-        rotation="vertical",
-    )
+        # Set the label for the x-axis.
+        axes[-1][col_idx].set_xlabel("step")
 
     return fig, axes
 
@@ -176,7 +173,9 @@ def plot_learning_curves(
     """
     group_fmt = group_fmt if group_fmt is not None else lambda x: x
 
-    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(11, 11), sharey=True,)
+    fig, axes = plt.subplots(
+        nrows=2, ncols=2, figsize=(11, 11), sharey=True, constrained_layout=True
+    )
 
     sizes = sorted(data[dataset_size].unique())
 
@@ -253,36 +252,40 @@ def plot_learning_curves(
 
     axes[0][1].set_title("Profile Learning Curve")
 
-    fig.text(x=0.5, y=0.03, s="# examples", ha="center", va="center")
-    fig.text(
-        x=0.03,
-        y=0.5,
-        s="accuracy",
-        ha="center",
-        va="center",
-        rotation="vertical",
-    )
+    for i in range(2):
+        # Set the label for the y-axis.
+        axes[i][0].set_ylabel("accuracy")
+
+    for i in range(2):
+        # Set the label for the x-axis.
+        axes[-1][i].set_xlabel("# examples")
 
     return fig, axes
 
 
-# constants
+# figure configuration
+
+
+@dataclasses.dataclass
+class FigureConfig:
+    """A configuration object for a figure."""
+
+    fig_name: str
+    data_fname: str
+    split_key: List[str]
+    plot_func: Callable
+    plot_kwargs: Dict[str, Any]
 
 
 TOPIC_TO_FIGURE_CONFIG = {
     "effect-of-size": {
         "mixtures": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset", "rate"],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset", "rate"],
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -294,17 +297,12 @@ TOPIC_TO_FIGURE_CONFIG = {
             ),
         ],
         "multiset_learning-curves": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset", "transfer_method"],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset", "transfer_method"],
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -314,17 +312,12 @@ TOPIC_TO_FIGURE_CONFIG = {
                     "fig_col_fmt": None,
                 },
             ),
-            (
-                # plot name
-                "learning-curves",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset", "transfer_method"],
-                # plotting function
-                plot_learning_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-curves",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset", "transfer_method"],
+                plot_func=plot_learning_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "dataset_size": "size",
                     "group": "lr",
@@ -333,17 +326,12 @@ TOPIC_TO_FIGURE_CONFIG = {
             ),
         ],
         "single-task_learning-curves": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset"],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset"],
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -353,17 +341,12 @@ TOPIC_TO_FIGURE_CONFIG = {
                     "fig_col_fmt": None,
                 },
             ),
-            (
-                # plot name
-                "learning-curves",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset"],
-                # plotting function
-                plot_learning_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-curves",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset"],
+                plot_func=plot_learning_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "dataset_size": "size",
                     "group": "lr",
@@ -374,23 +357,18 @@ TOPIC_TO_FIGURE_CONFIG = {
     },
     "transferring-knowledge-graphs": {
         "multiset_full-tasks": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                [
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=[
                     "model_size",
                     "task",
                     "multiset",
                     "knowledge-graph",
                     "transfer_method",
                 ],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -400,23 +378,18 @@ TOPIC_TO_FIGURE_CONFIG = {
                     "fig_col_fmt": None,
                 },
             ),
-            (
-                # plot name
-                "direction-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                [
+            FigureConfig(
+                fig_name="direction-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=[
                     "model_size",
                     "task",
                     "multiset",
                     "knowledge-graph",
                     "transfer_method",
                 ],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "direction",
                     "group_fmt": None,
@@ -428,23 +401,18 @@ TOPIC_TO_FIGURE_CONFIG = {
             ),
         ],
         "multiset_learning-curves": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                [
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=[
                     "model_size",
                     "task",
                     "multiset",
                     "knowledge-graph",
                     "transfer_method",
                 ],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -454,23 +422,18 @@ TOPIC_TO_FIGURE_CONFIG = {
                     "fig_col_fmt": None,
                 },
             ),
-            (
-                # plot name
-                "learning-curves",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                [
+            FigureConfig(
+                fig_name="learning-curves",
+                data_fname="training-curves.jsonl",
+                split_key=[
                     "model_size",
                     "task",
                     "multiset",
                     "knowledge-graph",
                     "transfer_method",
                 ],
-                # plotting function
-                plot_learning_curves,
-                # kwargs
-                {
+                plot_func=plot_learning_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "dataset_size": "size",
                     "group": "lr",
@@ -479,17 +442,12 @@ TOPIC_TO_FIGURE_CONFIG = {
             ),
         ],
         "single-task_full-tasks": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset"],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset"],
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -501,17 +459,12 @@ TOPIC_TO_FIGURE_CONFIG = {
             ),
         ],
         "single-task_learning-curves": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset"],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset"],
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -521,17 +474,12 @@ TOPIC_TO_FIGURE_CONFIG = {
                     "fig_col_fmt": None,
                 },
             ),
-            (
-                # plot name
-                "learning-curves",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset"],
-                # plotting function
-                plot_learning_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-curves",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset"],
+                plot_func=plot_learning_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "dataset_size": "size",
                     "group": "lr",
@@ -542,17 +490,12 @@ TOPIC_TO_FIGURE_CONFIG = {
     },
     "transferring-multisets": {
         "multiset_full-tasks": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset", "transfer_method"],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset", "transfer_method"],
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -564,17 +507,12 @@ TOPIC_TO_FIGURE_CONFIG = {
             ),
         ],
         "multiset_learning-curves": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset", "transfer_method"],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset", "transfer_method"],
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -584,17 +522,12 @@ TOPIC_TO_FIGURE_CONFIG = {
                     "fig_col_fmt": None,
                 },
             ),
-            (
-                # plot name
-                "learning-curves",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset", "transfer_method"],
-                # plotting function
-                plot_learning_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-curves",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset", "transfer_method"],
+                plot_func=plot_learning_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "dataset_size": "size",
                     "group": "lr",
@@ -603,17 +536,12 @@ TOPIC_TO_FIGURE_CONFIG = {
             ),
         ],
         "single-task_full-tasks": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset"],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset"],
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -625,17 +553,12 @@ TOPIC_TO_FIGURE_CONFIG = {
             ),
         ],
         "single-task_learning-curves": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset"],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset"],
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -645,17 +568,12 @@ TOPIC_TO_FIGURE_CONFIG = {
                     "fig_col_fmt": None,
                 },
             ),
-            (
-                # plot name
-                "learning-curves",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset"],
-                # plotting function
-                plot_learning_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-curves",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset"],
+                plot_func=plot_learning_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "dataset_size": "size",
                     "group": "lr",
@@ -666,17 +584,12 @@ TOPIC_TO_FIGURE_CONFIG = {
     },
     "transferring-to-external-tasks": {
         "multiset_full-tasks": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset", "transfer_method"],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset", "transfer_method"],
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -688,17 +601,12 @@ TOPIC_TO_FIGURE_CONFIG = {
             ),
         ],
         "multiset_learning-curves": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset", "transfer_method"],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset", "transfer_method"],
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -708,17 +616,12 @@ TOPIC_TO_FIGURE_CONFIG = {
                     "fig_col_fmt": None,
                 },
             ),
-            (
-                # plot name
-                "learning-curves",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset", "transfer_method"],
-                # plotting function
-                plot_learning_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-curves",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset", "transfer_method"],
+                plot_func=plot_learning_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "dataset_size": "size",
                     "group": "lr",
@@ -727,17 +630,12 @@ TOPIC_TO_FIGURE_CONFIG = {
             ),
         ],
         "single-task_full-tasks": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset"],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset"],
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -749,17 +647,12 @@ TOPIC_TO_FIGURE_CONFIG = {
             ),
         ],
         "single-task_learning-curves": [
-            (
-                # plot name
-                "learning-rate-comparison",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset"],
-                # plotting function
-                plot_training_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-rate-comparison",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset"],
+                plot_func=plot_training_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "group": "lr",
                     "group_fmt": "lr: {:.1e}".format,
@@ -769,17 +662,12 @@ TOPIC_TO_FIGURE_CONFIG = {
                     "fig_col_fmt": None,
                 },
             ),
-            (
-                # plot name
-                "learning-curves",
-                # source data file
-                "training-curves.jsonl",
-                # key to split plots
-                ["model_size", "task", "multiset"],
-                # plotting function
-                plot_learning_curves,
-                # kwargs
-                {
+            FigureConfig(
+                fig_name="learning-curves",
+                data_fname="training-curves.jsonl",
+                split_key=["model_size", "task", "multiset"],
+                plot_func=plot_learning_curves,
+                plot_kwargs={
                     "training_curve": "training_curve",
                     "dataset_size": "size",
                     "group": "lr",
@@ -802,14 +690,13 @@ TOPIC_TO_FIGURE_CONFIG = {
 @click.argument(
     "dst", type=click.Path(exists=False, dir_okay=True, file_okay=False)
 )
-def create_figures(src: str, dst: str) -> None:
-    """Create figures for the Rainbow results.
+def create_single_experiment_figures(src: str, dst: str) -> None:
+    """Create single experiment figures for the Rainbow results.
 
     Read in the raw tables from SRC and write out the figures to DST.
     """
     utils.configure_logging(clear=True)
 
-    # Plot single experiment figures.
     for topic, experiment_to_figure_configs in tqdm.tqdm(
         TOPIC_TO_FIGURE_CONFIG.items(), **settings.TQDM_KWARGS
     ):
@@ -817,29 +704,33 @@ def create_figures(src: str, dst: str) -> None:
             experiment_to_figure_configs.items(), **settings.TQDM_KWARGS
         ):
             for config in tqdm.tqdm(figure_configs, **settings.TQDM_KWARGS):
-                fig_name, src_file, split_keys, plot_func, plot_kwargs = config
+                os.makedirs(
+                    os.path.join(dst, topic, experiment, config.fig_name)
+                )
 
-                os.makedirs(os.path.join(dst, topic, experiment, fig_name))
-
-                src_path = os.path.join(src, topic, experiment, src_file)
+                src_path = os.path.join(
+                    src, topic, experiment, config.data_fname
+                )
                 data = (
                     pd.read_csv(src_path)
                     if src_path.endswith("csv")
                     else pd.read_json(src_path, lines=True)
                 )
-                for key, subdata in data.groupby(split_keys):
-                    fig, axes = plot_func(data=subdata, **plot_kwargs)
+                for key, subdata in data.groupby(config.split_key):
+                    fig, axes = config.plot_func(
+                        data=subdata, **config.plot_kwargs
+                    )
 
                     dst_path = os.path.join(
                         dst,
                         topic,
                         experiment,
-                        fig_name,
-                        ".".join(list(key) + [fig_name, "pdf"]),
+                        config.fig_name,
+                        ".".join(list(key) + [config.fig_name, "pdf"]),
                     )
-                    plt.savefig(dst_path)
+                    fig.savefig(dst_path)
                     plt.close(fig)
 
 
 if __name__ == "__main__":
-    create_figures()  # pylint: disable=no-value-for-parameter
+    create_single_experiment_figures()  # pylint: disable=no-value-for-parameter
