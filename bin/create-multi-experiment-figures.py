@@ -141,7 +141,7 @@ def _make_plot_grid(
     fig, axes = plt.subplots(
         nrows=n_rows,
         ncols=n_cols,
-        figsize=(6 * n_cols, 6 * n_rows),
+        figsize=(4.5 * n_cols, 4.5 * n_rows),
         constrained_layout=True,
     )
     # Modify axes so we can access the axis objects in a uniform way,
