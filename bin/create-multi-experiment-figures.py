@@ -141,7 +141,7 @@ def _make_plot_grid(
     fig, axes = plt.subplots(
         nrows=n_rows,
         ncols=n_cols,
-        figsize=(4.5 * n_cols, 4.5 * n_rows),
+        figsize=(4 * n_cols, 4 * n_rows),
         constrained_layout=True,
     )
     # Modify axes so we can access the axis objects in a uniform way,
@@ -392,6 +392,18 @@ def plot_cost_equivalent_curves(
             [0.99 * min_size, 1.01 * max_size],
             **CENTERLINE_STYLE_KWARGS,
         )
+        # Set the x and y ticks.
+        ticks = np.linspace(min_size, max_size, num=5)[1:]
+        tick_labels = [
+            f'{x/1000:.1f}'.rstrip('0').rstrip('.') + 'k'
+            if x / 1000 > 1. else
+            f'{x:f}'
+            for x in ticks
+        ]
+        ax.set_xticks(ticks)
+        ax.set_xticklabels(tick_labels)
+        ax.set_yticks(ticks)
+        ax.set_yticklabels(tick_labels)
         # Add the second axis at the top of the figure.
         def cost2perf(x):
             if len(x) == 0:
@@ -400,7 +412,8 @@ def plot_cost_equivalent_curves(
 
         ax2 = ax.twiny()
         ax2.set_xlim(ax.get_xlim())
-        ax2.set_xticklabels([f"{x:.3f}" for x in cost2perf(ax2.get_xticks())])
+        ax2.set_xticks(ticks)
+        ax2.set_xticklabels([f"{x:.3f}" for x in cost2perf(ticks)])
 
     return _make_plot_grid(
         plot_func=plot_func,
