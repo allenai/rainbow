@@ -698,9 +698,9 @@ TOPIC_TO_FIGURE_CONFIG = {
             plot_kwargs={
                 "match_col": "task",
                 "match_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -735,9 +735,9 @@ TOPIC_TO_FIGURE_CONFIG = {
             plot_kwargs={
                 "match_col": "task",
                 "match_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -783,9 +783,9 @@ TOPIC_TO_FIGURE_CONFIG = {
                 }[x],
                 "subfigure_col": "task",
                 "subfigure_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -827,9 +827,9 @@ TOPIC_TO_FIGURE_CONFIG = {
                 }[x],
                 "subfigure_col": "task",
                 "subfigure_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -856,9 +856,9 @@ TOPIC_TO_FIGURE_CONFIG = {
             plot_kwargs={
                 "match_col": "task",
                 "match_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -891,9 +891,9 @@ TOPIC_TO_FIGURE_CONFIG = {
             plot_kwargs={
                 "match_col": "task",
                 "match_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -939,9 +939,9 @@ TOPIC_TO_FIGURE_CONFIG = {
                 }[x],
                 "subfigure_col": "task",
                 "subfigure_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -981,9 +981,9 @@ TOPIC_TO_FIGURE_CONFIG = {
                 }[x],
                 "subfigure_col": "task",
                 "subfigure_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -1012,9 +1012,9 @@ TOPIC_TO_FIGURE_CONFIG = {
             plot_kwargs={
                 "match_col": "task",
                 "match_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -1047,9 +1047,9 @@ TOPIC_TO_FIGURE_CONFIG = {
             plot_kwargs={
                 "match_col": "task",
                 "match_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -1095,9 +1095,9 @@ TOPIC_TO_FIGURE_CONFIG = {
                 }[x],
                 "subfigure_col": "task",
                 "subfigure_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -1137,9 +1137,9 @@ TOPIC_TO_FIGURE_CONFIG = {
                 }[x],
                 "subfigure_col": "task",
                 "subfigure_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -1166,9 +1166,9 @@ TOPIC_TO_FIGURE_CONFIG = {
             plot_kwargs={
                 "match_col": "task",
                 "match_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -1201,9 +1201,9 @@ TOPIC_TO_FIGURE_CONFIG = {
             plot_kwargs={
                 "match_col": "task",
                 "match_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -1249,9 +1249,9 @@ TOPIC_TO_FIGURE_CONFIG = {
                 }[x],
                 "subfigure_col": "task",
                 "subfigure_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
@@ -1291,9 +1291,9 @@ TOPIC_TO_FIGURE_CONFIG = {
                 }[x],
                 "subfigure_col": "task",
                 "subfigure_fmt": lambda x: {
-                    "anli": "ART",
+                    "anli": "aNLI",
                     "cosmosqa": "CosmosQA",
-                    "hellaswag": "HSWAG",
+                    "hellaswag": "HellaSWAG",
                     "physicaliqa": "PIQA",
                     "socialiqa": "SocialIQa",
                     "winogrande": "WinoGrande",
