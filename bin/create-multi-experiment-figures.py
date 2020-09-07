@@ -417,8 +417,8 @@ def plot_cost_equivalent_curves(
 
     return _make_plot_grid(
         plot_func=plot_func,
-        x_label="control cost (# examples)",
-        y_label="treatment cost (# examples)",
+        x_label="baseline examples",
+        y_label="new method examples",
         control_data=control_data,
         treatment_data=treatment_data,
         score_col=score_col,
@@ -552,8 +552,8 @@ def plot_performance_equivalent_curves(
 
     return _make_plot_grid(
         plot_func=plot_func,
-        x_label="control score (accuracy)",
-        y_label="treatment score (accuracy)",
+        x_label="baseline accuracy",
+        y_label="new method accuracy",
         control_data=control_data,
         treatment_data=treatment_data,
         score_col=score_col,
