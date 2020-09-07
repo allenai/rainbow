@@ -726,7 +726,7 @@ def create_single_experiment_figures(src: str, dst: str) -> None:
                         topic,
                         experiment,
                         config.fig_name,
-                        ".".join(list(key) + [config.fig_name, "pdf"]),
+                        ".".join(list(key) + [config.fig_name, "png"]),
                     )
                     fig.savefig(dst_path)
                     plt.close(fig)
