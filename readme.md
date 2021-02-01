@@ -2,7 +2,16 @@ rainbow
 =======
 Neural models of common sense.
 
-[This repository][source] holds all code for rainbow.
+[This repository][source] is for the paper: Unicorn on Rainbow: A Universal
+Commonsense Reasoning Model on a New Multitask Benchmark. Unicorn on Rainbow
+introduces a new evaluation, *the cost equivalent curve*, which compares models
+in terms of their cost-benefit trade offs. Using cost equivalent curves, we
+conduct a large-scale empirical study of intermediate-task transfer for common
+sense. With findings from this study, we created a new state-of-the-art model
+for commonsense reasoning: Unicorn.
+
+This repository provides code for constructing cost equivalent curves, training
+and running Unicorn, and reproducing our experiments.
 
 For information on specific subjects, see the following docs:
 
@@ -10,6 +19,14 @@ For information on specific subjects, see the following docs:
   - **[Analyzing Results][analyzing-results]**: Download our experimental
     results (training curves, learning curves, results tables, extra figures,
     etc.) and/or reproduce our analysis pipeline.
+
+
+Contact
+-------
+For public, non-sensitive questions and concerns, please file an issue on this
+repository.
+
+For private or sensitive inquiries email mosaic on the allenai.org website.
 
 
 [analyzing-results]: ./docs/analyzing-results.md
