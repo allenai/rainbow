@@ -25,6 +25,9 @@ pip install --upgrade pip setuptools
 
 # install requirements
 pip install --requirement "$ROOT/requirements.txt"
+# N.B. reinstalling tensorflow-datasets after tensorflow resolves an error
+pip uninstall --yes tensorflow-datasets
+pip install tensorflow-datasets==2.0.0
 
 # install development requirements
 pip install --requirement "$ROOT/dev-requirements.txt"
