@@ -1,3 +1,4 @@
 include readme.md
+include LICENSE
 include docs/*.md
 include tests/fixtures/*
