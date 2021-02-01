@@ -21,6 +21,14 @@ For information on specific subjects, see the following docs:
     etc.) and/or reproduce our analysis pipeline.
 
 
+Contact
+-------
+For public, non-sensitive questions and concerns, please file an issue on this
+repository.
+
+For private or sensitive inquiries email mosaic on the allenai.org website.
+
+
 [analyzing-results]: ./docs/analyzing-results.md
 [development]: ./docs/development.md
 [source]: https://github.com/allenai/rainbow
