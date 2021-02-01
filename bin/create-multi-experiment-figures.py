@@ -37,6 +37,10 @@ N_TO_ROWS_AND_COLS = {
     10: (4, 3),
     11: (4, 3),
     12: (4, 3),
+    13: (4, 4),
+    14: (4, 4),
+    15: (3, 5),
+    16: (4, 4),
 }
 """A mapping from various integers to a number of rows and columns.
 
@@ -395,9 +399,9 @@ def plot_cost_equivalent_curves(
         # Set the x and y ticks.
         ticks = np.linspace(min_size, max_size, num=5)[1:]
         tick_labels = [
-            f'{x/1000:.1f}'.rstrip('0').rstrip('.') + 'k'
-            if x / 1000 > 1. else
-            f'{x:f}'
+            f"{x/1000:.1f}".rstrip("0").rstrip(".") + "k"
+            if x / 1000 > 1.0
+            else f"{x:f}"
             for x in ticks
         ]
         ax.set_xticks(ticks)

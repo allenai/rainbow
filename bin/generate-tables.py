@@ -12,13 +12,27 @@ from typing import Any, List, Optional, Tuple
 import click
 from sklearn import metrics
 
-from rainbow import utils
+from rainbow import datasets, utils
 
 
 logger = logging.getLogger(__name__)
 
 
 # constants
+
+TASK_TO_DATASET = {
+    task: dataset
+    for datasets_ in [
+        datasets.RAINBOW_DATASETS,
+        datasets.KNOWLEDGE_GRAPH_DATASETS,
+        datasets.GLUE_DATASETS,
+        datasets.SUPER_GLUE_DATASETS,
+        datasets.COMMONSENSE_DATASETS,
+    ]
+    for task, dataset in datasets_.items()
+}
+"""A mapping from all dataset names to metadata about them."""
+
 
 EXPERIMENT_TO_TABLES_CONFIG = {
     "effect-of-size": {
@@ -610,11 +624,13 @@ def parse_training_curves(
     }
 
 
-def process_factor(key: str, value: str) -> Any:
-    """Return ``value`` coerced to the proper type given ``key``.
+def process_factor(task: str, key: str, value: str) -> Any:
+    """Return ``value`` coerced to the proper type and value.
 
     Parameters
     ----------
+    task : str, required
+        The task.
     key : str, required
         The name of the factor.
     value : str, required
@@ -632,7 +648,11 @@ def process_factor(key: str, value: str) -> Any:
             value = value[: -len("_eval")]
         return str(value)
     if key == "size":
-        return int(value)
+        dataset = TASK_TO_DATASET[task]
+        # N.B. The maximum sized used in any experiment was automatically
+        # truncated to the minimum of the requested size or the size of the
+        # training split.
+        return min(int(value), dataset.splits["train"].size)
     if key == "best_score":
         return float(value)
     if key == "training_curve":
@@ -709,10 +729,41 @@ def generate_tables(src: str, dst: str) -> None:
             with open(training_curves_table_path, "w") as fout:
                 fieldnames = list(factors.keys()) + ["training_curve"]
                 for row in training_curves_table:
+                    # Identify the task.
+                    task = next(
+                        value
+                        for factor, value in zip(fieldnames, row)
+                        if factor == "task"
+                    )
+                    # Skip all sizes where the requested training set size is
+                    # larger than the available training data, except when size
+                    # is 16000. In these cases, the training data used is the
+                    # dataset's full training set size. We skip all except when
+                    # size is 16000 because we want to avoid repeat runs at the
+                    # same training set size (to simplify comparisons across
+                    # the experiments).
+                    try:
+                        size = next(
+                            value
+                            for factor, value in zip(fieldnames, row)
+                            if factor == "size"
+                        )
+                    except StopIteration:
+                        pass
+                    else:
+                        dataset = TASK_TO_DATASET[task]
+                        if (
+                            int(size) >= dataset.splits["train"].size
+                            and size != "16000"
+                        ):
+                            continue
+                    # Write the training curve to disk.
                     fout.write(
                         json.dumps(
                             {
-                                factor: process_factor(factor, value)
+                                factor: process_factor(
+                                    task=task, key=factor, value=value,
+                                )
                                 for factor, value in zip(fieldnames, row)
                             }
                         )
@@ -728,9 +779,40 @@ def generate_tables(src: str, dst: str) -> None:
 
                 writer.writeheader()
                 for row in table:
+                    # Identify the task.
+                    task = next(
+                        value
+                        for factor, value in zip(fieldnames, row)
+                        if factor == "task"
+                    )
+                    # Skip all sizes where the requested training set size is
+                    # larger than the available training data, except when size
+                    # is 16000. In these cases, the training data used is the
+                    # dataset's full training set size. We skip all except when
+                    # size is 16000 because we want to avoid repeat runs at the
+                    # same training set size (to simplify comparisons across
+                    # the experiments).
+                    try:
+                        size = next(
+                            value
+                            for factor, value in zip(fieldnames, row)
+                            if factor == "size"
+                        )
+                    except StopIteration:
+                        pass
+                    else:
+                        dataset = TASK_TO_DATASET[task]
+                        if (
+                            int(size) >= dataset.splits["train"].size
+                            and size != "16000"
+                        ):
+                            continue
+                    # Write the table to disk.
                     writer.writerow(
                         {
-                            factor: process_factor(factor, value)
+                            factor: process_factor(
+                                task=task, key=factor, value=value,
+                            )
                             for factor, value in zip(fieldnames, row)
                         }
                     )
