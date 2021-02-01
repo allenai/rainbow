@@ -542,6 +542,13 @@ def plot_performance_equivalent_curves(
             [0.99 * min_score, 1.01 * max_score],
             **CENTERLINE_STYLE_KWARGS,
         )
+        # Set the x and y ticks.
+        ticks = np.linspace(min_score, max_score, num=5)[1:]
+        tick_labels = [f"{x:.2f}" for x in ticks]
+        ax.set_xticks(ticks)
+        ax.set_xticklabels(tick_labels)
+        ax.set_yticks(ticks)
+        ax.set_yticklabels(tick_labels)
         # Add the second axis at the top of the figure.
         def perf2cost(x):
             if len(x) == 0:
@@ -550,9 +557,8 @@ def plot_performance_equivalent_curves(
 
         ax2 = ax.twiny()
         ax2.set_xlim(ax.get_xlim())
-        ax2.set_xticklabels(
-            [f"{int(x):d}" for x in perf2cost(ax2.get_xticks())]
-        )
+        ax2.set_xticks(ticks)
+        ax2.set_xticklabels([f"{int(x):d}" for x in perf2cost(ticks)])
 
     return _make_plot_grid(
         plot_func=plot_func,
