@@ -86,13 +86,13 @@ class RainbowPreparer(preparer.Preparer):
             },
             archives={
                 "main": RainbowArchive(
-                    url="gs://ai2-mosaic/public/alphanli/alphanli-train-dev.zip",
+                    url="gs://ai2-mosaic-public/projects/rainbow/v1.0/data/raw/anli/alphanli-train-dev.zip",
                     checksum="24840b27553e93ec625ae020dbf78d92daeae4be31ebbd469a0c9f6f99ed1c8d",
                     file_name="alphanli-train-dev.zip",
                     splits=["train", "validation"],
                 ),
                 "test": RainbowArchive(
-                    url="gs://ai2-mosaic/public/alphanli/alphanli-test.zip",
+                    url="gs://ai2-mosaic-public/projects/rainbow/v1.0/data/raw/anli/alphanli-test.zip",
                     checksum="afa4281fb78ca1081278ec19c53548f1c8ba599e863eebe84697aa6ce2e06e63",
                     file_name="alphanli-test.zip",
                     splits=["test"],
@@ -125,7 +125,7 @@ class RainbowPreparer(preparer.Preparer):
             },
             archives={
                 "main": RainbowArchive(
-                    url="gs://ai2-mosaic/public/cosmosqa/cosmosqa-data.zip",
+                    url="gs://ai2-mosaic-public/projects/rainbow/v1.0/data/raw/cosmosqa/cosmosqa-data.zip",
                     checksum="d06bfef918240b34b6f86fdfd8215d15fea2abced0bfca8ab99004e3bce760ec",
                     file_name="cosmosqa-data.zip",
                     splits=["train", "validation", "test"],
@@ -165,13 +165,13 @@ class RainbowPreparer(preparer.Preparer):
             },
             archives={
                 "main": RainbowArchive(
-                    url="gs://ai2-mosaic/public/hellaswag/hellaswag-train-dev.zip",
+                    url="gs://ai2-mosaic-public/projects/rainbow/v1.0/data/raw/hellaswag/hellaswag-train-dev.zip",
                     checksum="5d5d70300eff7af886c184477bb076fbfa24336cb300c52c3b6e62644d14d928",
                     file_name="hellaswag-train-dev.zip",
                     splits=["train", "validation"],
                 ),
                 "test": RainbowArchive(
-                    url="gs://ai2-mosaic/public/hellaswag/hellaswag-test.zip",
+                    url="gs://ai2-mosaic-public/projects/rainbow/v1.0/data/raw/hellaswag/hellaswag-test.zip",
                     checksum="9fd5a8b0c06802e6aff6eb766842c4524c3db38f2bc708377adb1063267ec1b0",
                     file_name="hellaswag-test.zip",
                     splits=["test"],
@@ -204,13 +204,13 @@ class RainbowPreparer(preparer.Preparer):
             },
             archives={
                 "main": RainbowArchive(
-                    url="gs://ai2-mosaic/public/physicaliqa/physicaliqa-train-dev.zip",
+                    url="gs://ai2-mosaic-public/projects/rainbow/v1.0/data/raw/physicaliqa/physicaliqa-train-dev.zip",
                     checksum="54d32a04f59a7e354396f321723c8d7ec35cc6b08506563d8d1ffcc15ce98ddd",
                     file_name="physicaliqa-train-dev.zip",
                     splits=["train", "validation"],
                 ),
                 "test": RainbowArchive(
-                    url="gs://ai2-mosaic/public/physicaliqa/physicaliqa-test.zip",
+                    url="gs://ai2-mosaic-public/projects/rainbow/v1.0/data/raw/physicaliqa/physicaliqa-test.zip",
                     checksum="b16301a506297842de5b1e2918200c3245daabc4de3c9007151e6098996651cf",
                     file_name="physicaliqa-test.zip",
                     splits=["test"],
@@ -243,13 +243,13 @@ class RainbowPreparer(preparer.Preparer):
             },
             archives={
                 "main": RainbowArchive(
-                    url="gs://ai2-mosaic/public/socialiqa/socialiqa-train-dev.zip",
+                    url="gs://ai2-mosaic-public/projects/rainbow/v1.0/data/raw/socialiqa/socialiqa-train-dev.zip",
                     checksum="ee073914a0fc33265cfbcfc50ec20df9b2e07809c3f420f599138d1f394ef5c3",
                     file_name="socialiqa-train-dev.zip",
                     splits=["train", "validation"],
                 ),
                 "test": RainbowArchive(
-                    url="gs://ai2-mosaic/public/socialiqa/socialiqa-test.zip",
+                    url="gs://ai2-mosaic-public/projects/rainbow/v1.0/data/raw/socialiqa/socialiqa-test.zip",
                     checksum="f1780632200ade1ec0e84af546aa0df2bcb9052f412afedec8d1fe03cfc8b326",
                     file_name="socialiqa-test.zip",
                     splits=["test"],
@@ -318,7 +318,7 @@ class RainbowPreparer(preparer.Preparer):
             },
             archives={
                 "main": RainbowArchive(
-                    url="gs://ai2-mosaic/public/winogrande/winogrande_1.1.zip",
+                    url="gs://ai2-mosaic-public/projects/rainbow/v1.0/data/raw/winogrande/winogrande_1.1.zip",
                     checksum="db997e35f11b014043531e7cd7ef30591022fd5946063e1e1e1416963d342fa5",
                     file_name="winogrande_1.1.zip",
                     splits=[
