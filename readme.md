@@ -123,7 +123,7 @@ performance is measured by accuracy, then the cost equivalent curve shows how
 many examples the baseline needs to match the new technique's accuracy.
 
 The `plot_cost_equivalent_curves` function in
-[`bin/create-multi-experiment-figures.py](./bin/create-multi-experiment-figures.py)
+[`bin/create-multi-experiment-figures.py`](./bin/create-multi-experiment-figures.py)
 offers example code for how to create cost equivalent curves in Python.
 
 **Stay Tuned!** We'll soon be releasing an easy-to-use, standalone package for
