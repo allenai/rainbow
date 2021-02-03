@@ -8,7 +8,7 @@ import t5
 
 # dataset preprocessing
 
-PREPROCESSED_SPLIT_FILE_NAME_TEMPLATE = "{split}.{dataset}-preprocessed.csv"
+PREPROCESSED_SPLIT_FILE_NAME_TEMPLATE = "{split}.{dataset}.csv"
 """The file name template for the preprocessed splits."""
 
 DATASETS_DIR = os.environ["RAINBOW_DATASETS_DIR"]
