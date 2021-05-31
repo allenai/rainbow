@@ -389,8 +389,15 @@ You can also skip slower tests by passing the `--skip-slow` (`-s`) flag:
 
 Citation
 --------
-*Unicorn on Rainbow* is a AAAI 2021 paper. Please check back here soon for the
-bibtex citation.
+*Unicorn on Rainbow* was published at AAAI-2021. Please use the following bibtex entry to refer to the paper:
+```
+@article{Lourie2021UNICORNOR,
+  title={UNICORN on RAINBOW: A Universal Commonsense Reasoning Model on a New Multitask Benchmark},
+  author={Nicholas Lourie and Ronan {Le Bras} and Chandra Bhagavatula and Yejin Choi},
+  journal={AAAI},
+  year={2021}
+}
+```
 
 
 Contact
