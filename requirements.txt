@@ -69,7 +69,7 @@ sentencepiece==0.1.95
 six==1.15.0
 t5[gcp]==0.6.2
 tensorboard==1.15.0
-tensorflow==1.15.2
+tensorflow==2.5.0
 tensorflow-datasets==2.0.0
 tensorflow-estimator==1.15.1
 tensorflow-metadata==0.27.0
