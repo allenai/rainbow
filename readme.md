@@ -2,8 +2,8 @@ Unicorn on Rainbow
 ==================
 Neural models of common sense.
 
-[This repository][source] is for the paper: *Unicorn on Rainbow: A Universal
-Commonsense Reasoning Model on a New Multitask Benchmark*. *Unicorn on Rainbow*
+[This repository][source] is for the paper: [*Unicorn on Rainbow: A Universal
+Commonsense Reasoning Model on a New Multitask Benchmark*][paper]. *Unicorn on Rainbow*
 introduces a new evaluation, *the cost equivalent curve*, which compares models
 in terms of their cost-benefit trade offs. Using cost equivalent curves, we
 conduct a large-scale empirical study of intermediate-task transfer for common
@@ -120,7 +120,8 @@ techniques offer. In particular, cost equivalent curves plot the baseline and
 new technique's *equivalent costs*, or the costs where they achieve the same
 performance. For example, if the cost is measured as the number of examples and
 performance is measured by accuracy, then the cost equivalent curve shows how
-many examples the baseline needs to match the new technique's accuracy.
+many examples the baseline needs to match the new technique's accuracy. See the
+"Cost Equivalent Curves" section of our [paper][paper] for more details.
 
 The `plot_cost_equivalent_curves` function in
 [`bin/create-multi-experiment-figures.py`](./bin/create-multi-experiment-figures.py)
@@ -425,6 +426,7 @@ For private or sensitive inquiries email mosaic on the allenai.org website.
 [hellaswag-test-download]: https://storage.googleapis.com/ai2-mosaic-public/projects/rainbow/v1.0/data/raw/hellaswag/hellaswag-test.zip
 [hellaswag-train-dev-checksum]: https://storage.googleapis.com/ai2-mosaic-public/projects/rainbow/v1.0/data/raw/hellaswag/hellaswag-train-dev.zip.checksum
 [hellaswag-train-dev-download]: https://storage.googleapis.com/ai2-mosaic-public/projects/rainbow/v1.0/data/raw/hellaswag/hellaswag-train-dev.zip
+[paper]: https://arxiv.org/abs/2103.13009
 [physicaliqa-leaderboard]: https://leaderboard.allenai.org/physicaliqa
 [physicaliqa-test-checksum]: https://storage.googleapis.com/ai2-mosaic-public/projects/rainbow/v1.0/data/raw/physicaliqa/physicaliqa-test.zip.checksum
 [physicaliqa-test-download]: https://storage.googleapis.com/ai2-mosaic-public/projects/rainbow/v1.0/data/raw/physicaliqa/physicaliqa-test.zip
