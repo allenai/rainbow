@@ -126,9 +126,6 @@ The `plot_cost_equivalent_curves` function in
 [`bin/create-multi-experiment-figures.py`](./bin/create-multi-experiment-figures.py)
 offers example code for how to create cost equivalent curves in Python.
 
-**Stay Tuned!** We'll soon be releasing an easy-to-use, standalone package for
-creating cost equivalent curves. Check back here for it in the future.
-
 
 Experimental Results
 --------------------
