@@ -1,7 +1,7 @@
 absl-py==0.10.0
 astor==0.8.1
 attrs==20.3.0
-Babel==2.9.0
+Babel==2.9.1
 boto==2.49.0
 cached-property==1.5.2
 cachetools==4.2.1
