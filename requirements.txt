@@ -83,7 +83,7 @@ transformers==4.2.2
 typing-extensions==3.7.4.3
 uritemplate==3.0.1
 urllib3==1.26.5
-Werkzeug==1.0.1
+Werkzeug==2.2.3
 wrapt==1.12.1
 zipp==3.4.0
 zope.event==4.5.0
