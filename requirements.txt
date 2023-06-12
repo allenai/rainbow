@@ -79,7 +79,7 @@ tfds-nightly==4.2.0.dev202102010107
 tokenizers==0.9.4
 torch==1.7.1
 tqdm==4.41.1
-transformers==4.2.2
+transformers==4.30.0
 typing-extensions==3.7.4.3
 uritemplate==3.0.1
 urllib3==1.26.5
